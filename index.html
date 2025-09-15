@@ -347,7 +347,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // --- Configuration ---
         const API_KEY = "AIzaSyCND3EhkA3cLclRUmXlvW9LWHqIH91H3Bc";
@@ -404,6 +404,8 @@
         let userData = {}; // Holds all user progress data from Firestore
         let currentSentence;
         let currentSentenceIndex = -1;
+        let firestoreUnsubscribe = null; // To hold the listener cleanup function
+        let isInitialLoad = true;
         
         // --- Date Helper Functions (Unchanged) ---
         function getTodaysDateString() { return new Date().toISOString().split('T')[0]; }
@@ -415,41 +417,50 @@
             return monday.toISOString().split('T')[0];
         }
 
-        // --- NEW: Firestore Data Functions ---
-        async function loadDataFromFirestore() {
-            if (!currentUser) return;
-            const docRef = doc(db, "users", currentUser.uid);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                userData = docSnap.data();
-                // Check and reset daily/weekly scores if the date has changed
-                const todayStr = getTodaysDateString();
-                const weekStartStr = getWeekStartDateString();
-                if(userData.dailyScoreData?.date !== todayStr) {
-                    userData.dailyScoreData = { date: todayStr, score: 0 };
-                }
-                if(userData.weeklyScoreData?.weekStartDate !== weekStartStr) {
-                    userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
-                }
-            } else {
-                // Set default data for a new user
-                userData = {
-                    totalScore: 0,
-                    dailyScoreData: { date: getTodaysDateString(), score: 0 },
-                    weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
-                    errorAnalysisData: {},
-                    usedTranslationIndices: []
-                };
+        // --- NEW: Real-time Firestore Listener ---
+        function setupFirestoreListener(userId) {
+            if (firestoreUnsubscribe) {
+                firestoreUnsubscribe(); // Detach any old listener
             }
-            updateAllUI();
-            displaySentence();
+            
+            const docRef = doc(db, "users", userId);
+            firestoreUnsubscribe = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    userData = docSnap.data();
+                    // Check and reset daily/weekly scores if the date has changed
+                    const todayStr = getTodaysDateString();
+                    const weekStartStr = getWeekStartDateString();
+                    if (userData.dailyScoreData?.date !== todayStr) {
+                        userData.dailyScoreData = { date: todayStr, score: 0 };
+                    }
+                    if (userData.weeklyScoreData?.weekStartDate !== weekStartStr) {
+                        userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                    }
+                } else {
+                    // Set default data for a new user (it will be saved on first action)
+                    userData = {
+                        totalScore: 0,
+                        dailyScoreData: { date: getTodaysDateString(), score: 0 },
+                        weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
+                        errorAnalysisData: {},
+                        usedTranslationIndices: []
+                    };
+                }
+                updateAllUI();
+                
+                // Only get a new sentence on the very first load after login
+                if (isInitialLoad) {
+                    displaySentence();
+                    isInitialLoad = false;
+                }
+            });
         }
 
         async function saveDataToFirestore() {
             if (!currentUser) return;
+            // Use setDoc with merge:true to avoid overwriting data from another client
             const docRef = doc(db, "users", currentUser.uid);
-            await setDoc(docRef, userData);
+            await setDoc(docRef, userData, { merge: true });
         }
         
         // --- Authentication Functions ---
@@ -458,7 +469,7 @@
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Authentication Error:", error);
-                showTemporaryMessage("Failed to sign in.");
+                showTemporaryMessage("Failed to sign in. Please check console.");
             }
         }
 
@@ -476,9 +487,13 @@
                 userInfo.classList.remove('hidden');
                 englishTranslationEl.disabled = false;
                 submitBtn.disabled = false;
-                loadDataFromFirestore();
+                isInitialLoad = true; // Reset for new login
+                setupFirestoreListener(user.uid);
             } else {
                 // User is signed out
+                if (firestoreUnsubscribe) {
+                    firestoreUnsubscribe(); // Detach the listener
+                }
                 loginBtn.classList.remove('hidden');
                 userInfo.classList.add('hidden');
                 englishTranslationEl.disabled = true;
@@ -632,7 +647,7 @@
                 userData.weeklyScoreData.score += attemptScore;
                 
                 await saveDataToFirestore();
-                updateAllUI();
+                // UI will be updated by the listener automatically, so no need to call updateAllUI() here.
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
                 evaluationEl.textContent = jsonResponse.evaluation;
