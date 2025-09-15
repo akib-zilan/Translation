@@ -191,7 +191,6 @@
             margin-top: 0.5rem;
         }
         
-        /* NEW: Styles for Error Analysis Chart */
         .error-analysis-section {
             padding-top: 1.5rem;
             margin-top: 1.5rem;
@@ -229,7 +228,7 @@
         .error-bar {
             height: 100%;
             width: 0%;
-            background-color: #ff9500; /* Orange color for distinction */
+            background-color: #ff9500;
             border-radius: 5px;
             transition: width 0.5s ease-in-out;
         }
@@ -238,6 +237,27 @@
             min-width: 20px;
             text-align: right;
             color: #1d1d1f;
+        }
+
+        /* NEW: Styles for Data Management */
+        .data-management-section {
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+            text-align: center;
+        }
+        .data-management-section h3 {
+             color: #1d1d1f;
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        #import-btn {
+            background-color: #5856d6;
+        }
+        #export-btn {
+            background-color: #ff9500;
         }
 
         @media (max-width: 950px) {
@@ -297,10 +317,17 @@
                 <p id="rank-score">Total Score: 0</p>
             </div>
             
-            <!-- NEW: Error Analysis Section -->
             <div class="error-analysis-section">
                 <h3>Common Error Analysis</h3>
                 <div id="error-chart-container"></div>
+            </div>
+
+            <!-- NEW: Data Management Section -->
+            <div class="data-management-section">
+                <h3>Data Management</h3>
+                <button id="export-btn">Export Progress</button>
+                <button id="import-btn">Import Progress</button>
+                <input type="file" id="import-file" class="hidden" accept=".json">
             </div>
         </div>
     </div>
@@ -316,7 +343,9 @@
         const USED_INDICES_KEY = 'usedTranslationIndices';
         const DAILY_SCORE_KEY = 'dailyScoreData';
         const WEEKLY_SCORE_KEY = 'weeklyScoreData';
-        const ERROR_ANALYSIS_KEY = 'errorAnalysisData'; // NEW
+        const ERROR_ANALYSIS_KEY = 'errorAnalysisData';
+        const ALL_DATA_KEYS = [SCORE_STORAGE_KEY, USED_INDICES_KEY, DAILY_SCORE_KEY, WEEKLY_SCORE_KEY, ERROR_ANALYSIS_KEY];
+
 
         const RANKS = [
             { name: 'General', minScore: 10000 },
@@ -331,7 +360,6 @@
             { name: 'Second Lieutenant', minScore: 0 }
         ];
 
-        // NEW: List of error criteria for analysis
         const ERROR_CRITERIA = [
             'Incorrect Word Choice', 'Omission or Addition', 'Incorrect Tense or Aspect', 'Article Errors',
             'Mistranslating Idioms and Proverbs', 'Incorrect Register or Formality', 'Loss of Nuance or Connotation',
@@ -354,7 +382,10 @@
         const weeklyProgressText = document.getElementById('weekly-progress-text');
         const rankNameEl = document.getElementById('rank-name');
         const rankScoreEl = document.getElementById('rank-score');
-        const errorChartContainer = document.getElementById('error-chart-container'); // NEW
+        const errorChartContainer = document.getElementById('error-chart-container');
+        const exportBtn = document.getElementById('export-btn'); // NEW
+        const importBtn = document.getElementById('import-btn'); // NEW
+        const importFileInput = document.getElementById('import-file'); // NEW
 
         let currentSentence;
         let currentSentenceIndex = -1;
@@ -395,6 +426,12 @@
         }
 
         // --- UI Update Functions ---
+        function updateAllUI() {
+            updateRankAndScoreDisplay(); 
+            updateProgressBars();
+            updateErrorChart();
+        }
+
         function updateRankAndScoreDisplay() {
             const currentRank = getRank(totalScore);
             rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
@@ -411,9 +448,8 @@
             weeklyProgressText.textContent = `${weeklyScore} / ${WEEKLY_GOAL}`;
         }
 
-        // NEW: Function to dynamically create the error chart structure
         function setupErrorChart() {
-            errorChartContainer.innerHTML = ''; // Clear previous content
+            errorChartContainer.innerHTML = '';
             ERROR_CRITERIA.forEach((criteria, index) => {
                 const item = document.createElement('div');
                 item.className = 'error-bar-item';
@@ -428,11 +464,10 @@
             });
         }
 
-        // NEW: Function to update the error chart with current data
         function updateErrorChart() {
             const errorData = JSON.parse(localStorage.getItem(ERROR_ANALYSIS_KEY)) || {};
             const counts = ERROR_CRITERIA.map(c => errorData[c] || 0);
-            const maxCount = Math.max(1, ...counts); // Use 1 as minimum to avoid division by zero
+            const maxCount = Math.max(1, ...counts);
 
             counts.forEach((count, index) => {
                 const percent = (count / maxCount) * 100;
@@ -532,7 +567,6 @@ Error List: ${JSON.stringify(ERROR_CRITERIA)}
                     showTemporaryMessage("You'll see this sentence again to practice!");
                 }
                 
-                // NEW: Update error counts based on AI response
                 const errorsFound = jsonResponse.errors_found || [];
                 if (Array.isArray(errorsFound) && errorsFound.length > 0) {
                     let errorData = JSON.parse(localStorage.getItem(ERROR_ANALYSIS_KEY)) || {};
@@ -551,9 +585,7 @@ Error List: ${JSON.stringify(ERROR_CRITERIA)}
                 localStorage.setItem(DAILY_SCORE_KEY, JSON.stringify({ date: getTodaysDateString(), score: dailyScore }));
                 localStorage.setItem(WEEKLY_SCORE_KEY, JSON.stringify({ weekStartDate: getWeekStartDateString(), score: weeklyScore }));
                 
-                updateRankAndScoreDisplay();
-                updateProgressBars();
-                updateErrorChart(); // Update chart with new data
+                updateAllUI();
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
                 evaluationEl.textContent = jsonResponse.evaluation;
@@ -587,18 +619,83 @@ Error List: ${JSON.stringify(ERROR_CRITERIA)}
             }, 3000);
         }
 
+        // --- NEW: Data Export/Import Functions ---
+        function exportProgress() {
+            const dataToExport = {};
+            ALL_DATA_KEYS.forEach(key => {
+                dataToExport[key] = localStorage.getItem(key);
+            });
+            const dataStr = JSON.stringify(dataToExport);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'translation_progress.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showTemporaryMessage("Progress exported successfully!", true);
+        }
+
+        function importProgress(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    let dataIsValid = true;
+                    ALL_DATA_KEYS.forEach(key => {
+                        if (typeof importedData[key] === 'undefined') {
+                            dataIsValid = false;
+                        }
+                    });
+
+                    if (!dataIsValid) {
+                        throw new Error("Invalid or corrupted data file.");
+                    }
+
+                    ALL_DATA_KEYS.forEach(key => {
+                        if(importedData[key] !== null) {
+                            localStorage.setItem(key, importedData[key]);
+                        } else {
+                            localStorage.removeItem(key);
+                        }
+                    });
+
+                    // Reload state from newly imported data
+                    totalScore = loadTotalScore(); 
+                    loadAndCheckGoalScores();
+                    updateAllUI();
+                    showTemporaryMessage("Progress imported successfully!", true);
+
+                } catch (error) {
+                    console.error("Import Error:", error);
+                    showTemporaryMessage(`Failed to import data: ${error.message}`);
+                } finally {
+                    // Reset file input to allow importing the same file again
+                    importFileInput.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
         // --- Event Listeners & Initial Load ---
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
+        exportBtn.addEventListener('click', exportProgress); // NEW
+        importBtn.addEventListener('click', () => importFileInput.click()); // NEW
+        importFileInput.addEventListener('change', importProgress); // NEW
 
         totalScore = loadTotalScore(); 
         loadAndCheckGoalScores();
         setupErrorChart();
-        updateRankAndScoreDisplay(); 
-        updateProgressBars();
-        updateErrorChart();
+        updateAllUI();
         displaySentence();
     </script>
 </body>
 </html>
+
 
