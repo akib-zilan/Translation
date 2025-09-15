@@ -137,9 +137,38 @@
             color: #1d1d1f;
             font-size: 1.5rem;
             margin-top: 0;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             text-align: center;
         }
+        /* NEW: Authentication Styles */
+        #auth-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        #user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        #user-info span {
+            font-weight: 500;
+        }
+        #logout-btn {
+            background-color: #ff3b30;
+            margin-left: 10px;
+        }
+        #login-btn {
+             background-color: #34c759;
+        }
+
         .goal {
             margin-bottom: 1.5rem;
         }
@@ -165,7 +194,6 @@
             border-radius: 6px;
             transition: width 0.5s ease-in-out;
         }
-
         .rank-section {
             text-align: center;
             padding-top: 1.5rem;
@@ -190,7 +218,6 @@
             color: #6e6e73;
             margin-top: 0.5rem;
         }
-        
         .error-analysis-section {
             padding-top: 1.5rem;
             margin-top: 1.5rem;
@@ -239,27 +266,6 @@
             color: #1d1d1f;
         }
 
-        /* NEW: Styles for Data Management */
-        .data-management-section {
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid #e5e5e5;
-            text-align: center;
-        }
-        .data-management-section h3 {
-             color: #1d1d1f;
-            font-size: 1.2rem;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        #import-btn {
-            background-color: #5856d6;
-        }
-        #export-btn {
-            background-color: #ff9500;
-        }
-
         @media (max-width: 950px) {
             .main-layout {
                 flex-direction: column;
@@ -276,10 +282,10 @@
     <div class="main-layout">
         <div class="container">
             <h1>Translate the Sentence</h1>
-            <div id="bengali-sentence"></div>
-            <textarea id="english-translation" placeholder="Type your English translation here..."></textarea>
+            <div id="bengali-sentence">Please log in to start practicing.</div>
+            <textarea id="english-translation" placeholder="Type your English translation here..." disabled></textarea>
             <div class="buttons">
-                <button id="submit-btn">Check My Translation</button>
+                <button id="submit-btn" disabled>Check My Translation</button>
                 <button id="next-btn" class="hidden">Next</button>
             </div>
             <div id="spinner" class="hidden"></div>
@@ -291,6 +297,16 @@
         </div>
 
         <div class="goals-container">
+             <!-- NEW: Authentication Section -->
+            <div id="auth-container">
+                 <button id="login-btn">Sign in with Google</button>
+                 <div id="user-info" class="hidden">
+                     <img id="user-photo" src="" alt="User photo">
+                     <span id="user-name"></span>
+                     <button id="logout-btn">Logout</button>
+                 </div>
+            </div>
+
             <h2>Your Progress</h2>
             <div class="goal">
                 <div class="goal-header">
@@ -321,50 +337,57 @@
                 <h3>Common Error Analysis</h3>
                 <div id="error-chart-container"></div>
             </div>
-
-            <!-- NEW: Data Management Section -->
-            <div class="data-management-section">
-                <h3>Data Management</h3>
-                <button id="export-btn">Export Progress</button>
-                <button id="import-btn">Import Progress</button>
-                <input type="file" id="import-file" class="hidden" accept=".json">
-            </div>
         </div>
     </div>
 
     <script src="sentences.js"></script>
     
-    <script>
+    <!-- NEW: Import Firebase Libraries -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
         // --- Configuration ---
         const API_KEY = "AIzaSyCND3EhkA3cLclRUmXlvW9LWHqIH91H3Bc";
+
+        // IMPORTANT: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
+            
+            // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyByvJfQjB38PkBAfY9wvtT9T7-RAhSGHjQ",
+  authDomain: "translation-798e4.firebaseapp.com",
+  projectId: "translation-798e4",
+  storageBucket: "translation-798e4.firebasestorage.app",
+  messagingSenderId: "901427739113",
+  appId: "1:901427739113:web:eb48bef88bf58d3236f378",
+  measurementId: "G-9FRPLN921M"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+
+
+
+
+
+        
+
         const DAILY_GOAL = 100;
         const WEEKLY_GOAL = 1000;
-        const SCORE_STORAGE_KEY = 'translationTotalScore';
-        const USED_INDICES_KEY = 'usedTranslationIndices';
-        const DAILY_SCORE_KEY = 'dailyScoreData';
-        const WEEKLY_SCORE_KEY = 'weeklyScoreData';
-        const ERROR_ANALYSIS_KEY = 'errorAnalysisData';
-        const ALL_DATA_KEYS = [SCORE_STORAGE_KEY, USED_INDICES_KEY, DAILY_SCORE_KEY, WEEKLY_SCORE_KEY, ERROR_ANALYSIS_KEY];
 
-
-        const RANKS = [
-            { name: 'General', minScore: 10000 },
-            { name: 'Lieutenant General', minScore: 6600 },
-            { name: 'Major General', minScore: 4100 },
-            { name: 'Brigadier General', minScore: 2600 },
-            { name: 'Colonel', minScore: 1600 },
-            { name: 'Lieutenant Colonel', minScore: 1000 },
-            { name: 'Major', minScore: 600 },
-            { name: 'Captain', minScore: 300 },
-            { name: 'First Lieutenant', minScore: 100 },
-            { name: 'Second Lieutenant', minScore: 0 }
-        ];
-
-        const ERROR_CRITERIA = [
-            'Incorrect Word Choice', 'Omission or Addition', 'Incorrect Tense or Aspect', 'Article Errors',
-            'Mistranslating Idioms and Proverbs', 'Incorrect Register or Formality', 'Loss of Nuance or Connotation',
-            'incorrect Word Order', 'Preposition Errors', 'Literal Translation'
-        ];
+        const RANKS = [ { name: 'General', minScore: 10000 }, { name: 'Lieutenant General', minScore: 6600 }, { name: 'Major General', minScore: 4100 }, { name: 'Brigadier General', minScore: 2600 }, { name: 'Colonel', minScore: 1600 }, { name: 'Lieutenant Colonel', minScore: 1000 }, { name: 'Major', minScore: 600 }, { name: 'Captain', minScore: 300 }, { name: 'First Lieutenant', minScore: 100 }, { name: 'Second Lieutenant', minScore: 0 }];
+        const ERROR_CRITERIA = [ 'Incorrect Word Choice', 'Omission or Addition', 'Incorrect Tense or Aspect', 'Article Errors', 'Mistranslating Idioms and Proverbs', 'Incorrect Register or Formality', 'Loss of Nuance or Connotation', 'incorrect Word Order', 'Preposition Errors', 'Literal Translation' ];
 
         // --- DOM Elements ---
         const bengaliSentenceEl = document.getElementById('bengali-sentence');
@@ -383,19 +406,27 @@
         const rankNameEl = document.getElementById('rank-name');
         const rankScoreEl = document.getElementById('rank-score');
         const errorChartContainer = document.getElementById('error-chart-container');
-        const exportBtn = document.getElementById('export-btn'); // NEW
-        const importBtn = document.getElementById('import-btn'); // NEW
-        const importFileInput = document.getElementById('import-file'); // NEW
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authContainer = document.getElementById('auth-container');
+        const userInfo = document.getElementById('user-info');
+        const userNameEl = document.getElementById('user-name');
+        const userPhotoEl = document.getElementById('user-photo');
 
+
+        // --- Firebase Initialization ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        
+        let currentUser = null;
+        let userData = {}; // Holds all user progress data from Firestore
         let currentSentence;
         let currentSentenceIndex = -1;
-        let totalScore = 0;
-        let dailyScore = 0;
-        let weeklyScore = 0;
-
-        // --- Date Helper Functions ---
+        
+        // --- Date Helper Functions (Unchanged) ---
         function getTodaysDateString() { return new Date().toISOString().split('T')[0]; }
-
         function getWeekStartDateString() {
             const now = new Date();
             const dayOfWeek = now.getDay();
@@ -404,28 +435,85 @@
             return monday.toISOString().split('T')[0];
         }
 
-        // --- Score Management ---
-        function loadTotalScore() {
-            const savedScore = localStorage.getItem(SCORE_STORAGE_KEY);
-            return savedScore ? parseInt(savedScore, 10) : 0;
+        // --- NEW: Firestore Data Functions ---
+        async function loadDataFromFirestore() {
+            if (!currentUser) return;
+            const docRef = doc(db, "users", currentUser.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                userData = docSnap.data();
+                // Check and reset daily/weekly scores if the date has changed
+                const todayStr = getTodaysDateString();
+                const weekStartStr = getWeekStartDateString();
+                if(userData.dailyScoreData?.date !== todayStr) {
+                    userData.dailyScoreData = { date: todayStr, score: 0 };
+                }
+                if(userData.weeklyScoreData?.weekStartDate !== weekStartStr) {
+                    userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                }
+            } else {
+                // Set default data for a new user
+                userData = {
+                    totalScore: 0,
+                    dailyScoreData: { date: getTodaysDateString(), score: 0 },
+                    weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
+                    errorAnalysisData: {},
+                    usedTranslationIndices: []
+                };
+            }
+            updateAllUI();
+            displaySentence();
         }
 
-        function saveTotalScore(score) { localStorage.setItem(SCORE_STORAGE_KEY, score); }
+        async function saveDataToFirestore() {
+            if (!currentUser) return;
+            const docRef = doc(db, "users", currentUser.uid);
+            await setDoc(docRef, userData);
+        }
         
-        function loadAndCheckGoalScores() {
-            const todayStr = getTodaysDateString();
-            const weekStartStr = getWeekStartDateString();
-
-            const dailyData = JSON.parse(localStorage.getItem(DAILY_SCORE_KEY)) || { date: todayStr, score: 0 };
-            dailyScore = (dailyData.date === todayStr) ? dailyData.score : 0;
-            if (dailyData.date !== todayStr) localStorage.setItem(DAILY_SCORE_KEY, JSON.stringify({ date: todayStr, score: 0 }));
-
-            const weeklyData = JSON.parse(localStorage.getItem(WEEKLY_SCORE_KEY)) || { weekStartDate: weekStartStr, score: 0 };
-            weeklyScore = (weeklyData.weekStartDate === weekStartStr) ? weeklyData.score : 0;
-            if (weeklyData.weekStartDate !== weekStartStr) localStorage.setItem(WEEKLY_SCORE_KEY, JSON.stringify({ weekStartDate: weekStartStr, score: 0 }));
+        // --- Authentication Functions ---
+        async function signIn() {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                showTemporaryMessage("Failed to sign in.");
+            }
         }
+
+        function signOutUser() {
+            signOut(auth);
+        }
+
+        onAuthStateChanged(auth, user => {
+            currentUser = user;
+            if (user) {
+                // User is signed in
+                userNameEl.textContent = user.displayName;
+                userPhotoEl.src = user.photoURL;
+                loginBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                englishTranslationEl.disabled = false;
+                submitBtn.disabled = false;
+                loadDataFromFirestore();
+            } else {
+                // User is signed out
+                loginBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                englishTranslationEl.disabled = true;
+                submitBtn.disabled = true;
+                bengaliSentenceEl.textContent = "Please log in to start practicing.";
+                resetUI(); // Reset progress display on logout
+            }
+        });
 
         // --- UI Update Functions ---
+        function resetUI() {
+            userData = { totalScore: 0, dailyScoreData: {score: 0}, weeklyScoreData: {score: 0}, errorAnalysisData: {} };
+            updateAllUI();
+        }
+        
         function updateAllUI() {
             updateRankAndScoreDisplay(); 
             updateProgressBars();
@@ -433,12 +521,16 @@
         }
 
         function updateRankAndScoreDisplay() {
-            const currentRank = getRank(totalScore);
+            const score = userData.totalScore || 0;
+            const currentRank = getRank(score);
             rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
-            rankScoreEl.textContent = `Total Score: ${totalScore.toLocaleString()}`;
+            rankScoreEl.textContent = `Total Score: ${score.toLocaleString()}`;
         }
 
         function updateProgressBars() {
+            const dailyScore = userData.dailyScoreData?.score || 0;
+            const weeklyScore = userData.weeklyScoreData?.score || 0;
+
             const dailyPercent = Math.min((dailyScore / DAILY_GOAL) * 100, 100);
             dailyProgressBar.style.width = `${dailyPercent}%`;
             dailyProgressText.textContent = `${dailyScore} / ${DAILY_GOAL}`;
@@ -465,7 +557,7 @@
         }
 
         function updateErrorChart() {
-            const errorData = JSON.parse(localStorage.getItem(ERROR_ANALYSIS_KEY)) || {};
+            const errorData = userData.errorAnalysisData || {};
             const counts = ERROR_CRITERIA.map(c => errorData[c] || 0);
             const maxCount = Math.max(1, ...counts);
 
@@ -478,11 +570,7 @@
 
         // --- Core Application Logic ---
         function getRank(score) {
-            const rankData = {
-                'General': '⭐️⭐️⭐️⭐️', 'Lieutenant General': '⭐️⭐️⭐️', 'Major General': '⭐️⭐️', 'Brigadier General': '⭐️',
-                'Colonel': '🦅', 'Lieutenant Colonel': '🦅', 'Major': '🎖️', 'Captain': '🎖️',
-                'First Lieutenant': '🔰', 'Second Lieutenant': '🔰'
-            };
+            const rankData = { 'General': '⭐️⭐️⭐️⭐️', 'Lieutenant General': '⭐️⭐️⭐️', 'Major General': '⭐️⭐️', 'Brigadier General': '⭐️', 'Colonel': '🦅', 'Lieutenant Colonel': '🦅', 'Major': '🎖️', 'Captain': '🎖️', 'First Lieutenant': '🔰', 'Second Lieutenant': '🔰' };
             for (const rank of RANKS) {
                 if (score >= rank.minScore) return { name: rank.name, emoji: rankData[rank.name] || '' };
             }
@@ -490,23 +578,23 @@
         }
 
         function getNewSentence() {
-            let usedIndices = JSON.parse(localStorage.getItem(USED_INDICES_KEY)) || [];
+            let usedIndices = userData.usedTranslationIndices || [];
             const availableIndices = sentences.map((_, i) => i).filter(i => !usedIndices.includes(i));
             
             if (availableIndices.length === 0) {
                 showTemporaryMessage("You've completed all sentences! Starting over. Great job!", true);
-                localStorage.setItem(USED_INDICES_KEY, JSON.stringify([]));
+                userData.usedTranslationIndices = [];
                 return getNewSentence();
             }
             
             const newSentenceIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
             currentSentenceIndex = newSentenceIndex;
-            usedIndices.push(newSentenceIndex);
-            localStorage.setItem(USED_INDICES_KEY, JSON.stringify(usedIndices));
+            userData.usedTranslationIndices.push(newSentenceIndex);
             return sentences[newSentenceIndex];
         }
 
         function displaySentence() {
+            if (!currentUser) return;
             currentSentence = getNewSentence();
             bengaliSentenceEl.textContent = currentSentence.Bengali;
             englishTranslationEl.value = '';
@@ -520,28 +608,13 @@
         async function getEvaluation() {
             const userTranslation = englishTranslationEl.value.trim();
             if (!userTranslation) { showTemporaryMessage("Please enter your translation."); return; }
-            if (API_KEY === "PASTE_YOUR_API_KEY_HERE") { showTemporaryMessage("Error: Please replace the placeholder API_KEY in the code."); return; }
+            if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") { showTemporaryMessage("Error: Please replace the placeholder API_KEY in the code."); return; }
 
             spinner.classList.remove('hidden');
             submitBtn.disabled = true;
             englishTranslationEl.disabled = true;
 
-            const today = new Date();
-            const location = "Khulna, Bangladesh";
-            const prompt = `You are an expert, friendly, and encouraging Bangla to English language tutor in ${location}. Your goal is to help a student improve their translation skills. Today is ${today.toDateString()}.
-
-Task: Evaluate the user's translation against the standard one. Be precise and helpful. Respond ONLY in valid, minified JSON.
-
-The JSON object must have these keys:
-1. "score": An integer out of 10, based on accuracy, grammar, and nuance.
-2. "evaluation": A detailed but concise explanation of the user's performance. Start with a positive, encouraging comment. Then, clearly explain any errors, referencing the specific error types found. Provide a clear reason WHY the suggested correction is better (e.g., "The word 'assault' is stronger and fits the context of 'আঘাত' better than 'hit'").
-3. "correction": The ideal, natural-sounding English translation.
-4. "errors_found": An array of strings. Populate this array ONLY with the exact strings from the following list if an error is found. Do not add any other text or explanations here.
-Error List: ${JSON.stringify(ERROR_CRITERIA)}
-
-- Original Bangla Sentence: ${currentSentence.Bengali}
-- Standard English Translation: ${currentSentence.English}
-- User's Translation: ${userTranslation}`;
+            const prompt = `You are an expert, friendly, and encouraging Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
@@ -561,30 +634,24 @@ Error List: ${JSON.stringify(ERROR_CRITERIA)}
                 const attemptScore = jsonResponse.score;
 
                 if (attemptScore < 6) {
-                    let usedIndices = JSON.parse(localStorage.getItem(USED_INDICES_KEY)) || [];
-                    const newUsedIndices = usedIndices.filter(index => index !== currentSentenceIndex);
-                    localStorage.setItem(USED_INDICES_KEY, JSON.stringify(newUsedIndices));
+                    userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter(index => index !== currentSentenceIndex);
                     showTemporaryMessage("You'll see this sentence again to practice!");
                 }
                 
                 const errorsFound = jsonResponse.errors_found || [];
-                if (Array.isArray(errorsFound) && errorsFound.length > 0) {
-                    let errorData = JSON.parse(localStorage.getItem(ERROR_ANALYSIS_KEY)) || {};
+                 if (Array.isArray(errorsFound) && errorsFound.length > 0) {
                     errorsFound.forEach(error => {
                         if (ERROR_CRITERIA.includes(error)) {
-                            errorData[error] = (errorData[error] || 0) + 1;
+                            userData.errorAnalysisData[error] = (userData.errorAnalysisData[error] || 0) + 1;
                         }
                     });
-                    localStorage.setItem(ERROR_ANALYSIS_KEY, JSON.stringify(errorData));
                 }
 
-                totalScore += attemptScore;
-                dailyScore += attemptScore;
-                weeklyScore += attemptScore;
-                saveTotalScore(totalScore);
-                localStorage.setItem(DAILY_SCORE_KEY, JSON.stringify({ date: getTodaysDateString(), score: dailyScore }));
-                localStorage.setItem(WEEKLY_SCORE_KEY, JSON.stringify({ weekStartDate: getWeekStartDateString(), score: weeklyScore }));
+                userData.totalScore += attemptScore;
+                userData.dailyScoreData.score += attemptScore;
+                userData.weeklyScoreData.score += attemptScore;
                 
+                await saveDataToFirestore();
                 updateAllUI();
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
@@ -605,12 +672,7 @@ Error List: ${JSON.stringify(ERROR_CRITERIA)}
         function showTemporaryMessage(message, isSuccess = false) {
             const messageBox = document.createElement('div');
             messageBox.textContent = message;
-            Object.assign(messageBox.style, {
-                position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
-                backgroundColor: isSuccess ? '#34c759' : '#ff4d4d', color: 'white',
-                padding: '10px 20px', borderRadius: '8px', zIndex: '1000',
-                opacity: '0', transition: 'opacity 0.5s'
-            });
+            Object.assign(messageBox.style, { position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', backgroundColor: isSuccess ? '#34c759' : '#ff4d4d', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: '1000', opacity: '0', transition: 'opacity 0.5s' });
             document.body.appendChild(messageBox);
             setTimeout(() => { messageBox.style.opacity = '1'; }, 10);
             setTimeout(() => {
@@ -619,83 +681,15 @@ Error List: ${JSON.stringify(ERROR_CRITERIA)}
             }, 3000);
         }
 
-        // --- NEW: Data Export/Import Functions ---
-        function exportProgress() {
-            const dataToExport = {};
-            ALL_DATA_KEYS.forEach(key => {
-                dataToExport[key] = localStorage.getItem(key);
-            });
-            const dataStr = JSON.stringify(dataToExport);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'translation_progress.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            showTemporaryMessage("Progress exported successfully!", true);
-        }
-
-        function importProgress(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    let dataIsValid = true;
-                    ALL_DATA_KEYS.forEach(key => {
-                        if (typeof importedData[key] === 'undefined') {
-                            dataIsValid = false;
-                        }
-                    });
-
-                    if (!dataIsValid) {
-                        throw new Error("Invalid or corrupted data file.");
-                    }
-
-                    ALL_DATA_KEYS.forEach(key => {
-                        if(importedData[key] !== null) {
-                            localStorage.setItem(key, importedData[key]);
-                        } else {
-                            localStorage.removeItem(key);
-                        }
-                    });
-
-                    // Reload state from newly imported data
-                    totalScore = loadTotalScore(); 
-                    loadAndCheckGoalScores();
-                    updateAllUI();
-                    showTemporaryMessage("Progress imported successfully!", true);
-
-                } catch (error) {
-                    console.error("Import Error:", error);
-                    showTemporaryMessage(`Failed to import data: ${error.message}`);
-                } finally {
-                    // Reset file input to allow importing the same file again
-                    importFileInput.value = '';
-                }
-            };
-            reader.readAsText(file);
-        }
-
         // --- Event Listeners & Initial Load ---
+        loginBtn.addEventListener('click', signIn);
+        logoutBtn.addEventListener('click', signOutUser);
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
-        exportBtn.addEventListener('click', exportProgress); // NEW
-        importBtn.addEventListener('click', () => importFileInput.click()); // NEW
-        importFileInput.addEventListener('change', importProgress); // NEW
-
-        totalScore = loadTotalScore(); 
-        loadAndCheckGoalScores();
+        
         setupErrorChart();
-        updateAllUI();
-        displaySentence();
+        resetUI(); // Start with a clean slate before login
     </script>
 </body>
 </html>
-
 
