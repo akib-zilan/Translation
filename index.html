@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangla to English Translation Practice</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f7;
+            margin: 0;
+            padding: 1rem;
+        }
+        .main-layout {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1100px;
+            padding: 1rem;
+        }
+        .container {
+            width: 90%;
+            max-width: 650px;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+            text-align: center;
+            flex-shrink: 0;
+        }
+        h1 {
+            color: #1d1d1f;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+        #bengali-sentence {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            margin: 1.5rem 0;
+            color: #333;
+            padding: 1.5rem;
+            background-color: #f5f5f7;
+            border-radius: 8px;
+            text-align: left;
+        }
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            height: 120px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+        .buttons {
+            margin-top: 1.5rem;
+        }
+        button {
+            padding: 0.8rem 1.6rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #007aff;
+            color: #fff;
+            margin: 0.5rem;
+            transition: background-color 0.2s ease;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #d2d2d7;
+            cursor: not-allowed;
+        }
+        #next-btn {
+            background-color: #34c759;
+        }
+        #next-btn:hover {
+            background-color: #2ca349;
+        }
+        #results {
+            margin-top: 2rem;
+            text-align: left;
+            padding: 1.5rem;
+            background-color: #f5f5f7;
+            border-radius: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        #score {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1d1d1f;
+        }
+        #evaluation, #correction {
+            margin-top: 0.75rem;
+            line-height: 1.5;
+        }
+        #spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #007aff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 1.5rem auto 0;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .goals-container {
+            width: 100%;
+            max-width: 300px;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+            text-align: left;
+        }
+        .goals-container h2 {
+            color: #1d1d1f;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .goal {
+            margin-bottom: 1.5rem;
+        }
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6e6e73;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background-color: #f5f5f7;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #34c759;
+            border-radius: 6px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .rank-section {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+        }
+        .rank-section h3 {
+            color: #1d1d1f;
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        #rank-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #007aff;
+            margin: 0.5rem 0;
+        }
+        #rank-score {
+            font-size: 1rem;
+            color: #6e6e73;
+            margin-top: 0.5rem;
+        }
+        
+        /* NEW: Styles for Error Analysis Chart */
+        .error-analysis-section {
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+        }
+        .error-analysis-section h3 {
+            color: #1d1d1f;
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .error-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.6rem;
+            font-size: 0.8rem;
+        }
+        .error-label {
+            width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+            color: #6e6e73;
+        }
+        .error-bar-container {
+            flex-grow: 1;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin: 0 0.5rem;
+        }
+        .error-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #ff9500; /* Orange color for distinction */
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+        .error-count {
+            font-weight: 600;
+            min-width: 20px;
+            text-align: right;
+            color: #1d1d1f;
+        }
+
+        @media (max-width: 950px) {
+            .main-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .goals-container {
+                max-width: 650px;
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <div class="container">
+            <h1>Translate the Sentence</h1>
+            <div id="bengali-sentence"></div>
+            <textarea id="english-translation" placeholder="Type your English translation here..."></textarea>
+            <div class="buttons">
+                <button id="submit-btn">Check My Translation</button>
+                <button id="next-btn" class="hidden">Next</button>
+            </div>
+            <div id="spinner" class="hidden"></div>
+            <div id="results" class="hidden">
+                <p id="score"></p>
+                <p><strong>Feedback:</strong> <span id="evaluation"></span></p>
+                <p><strong>Suggested Correction:</strong> <span id="correction"></span></p>
+            </div>
+        </div>
+
+        <div class="goals-container">
+            <h2>Your Progress</h2>
+            <div class="goal">
+                <div class="goal-header">
+                    <span>Daily Goal</span>
+                    <span id="daily-progress-text">0 / 100</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="daily-progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="goal">
+                <div class="goal-header">
+                    <span>Weekly Goal</span>
+                    <span id="weekly-progress-text">0 / 1000</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="weekly-progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+            
+            <div class="rank-section">
+                <h3>Your Rank</h3>
+                <p id="rank-name">Second Lieutenant</p>
+                <p id="rank-score">Total Score: 0</p>
+            </div>
+            
+            <!-- NEW: Error Analysis Section -->
+            <div class="error-analysis-section">
+                <h3>Common Error Analysis</h3>
+                <div id="error-chart-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="sentences.js"></script>
+    
+    <script>
+        // --- Configuration ---
+        const API_KEY = "AIzaSyCND3EhkA3cLclRUmXlvW9LWHqIH91H3Bc";
+        const DAILY_GOAL = 100;
+        const WEEKLY_GOAL = 1000;
+        const SCORE_STORAGE_KEY = 'translationTotalScore';
+        const USED_INDICES_KEY = 'usedTranslationIndices';
+        const DAILY_SCORE_KEY = 'dailyScoreData';
+        const WEEKLY_SCORE_KEY = 'weeklyScoreData';
+        const ERROR_ANALYSIS_KEY = 'errorAnalysisData'; // NEW
+
+        const RANKS = [
+            { name: 'General', minScore: 10000 },
+            { name: 'Lieutenant General', minScore: 6600 },
+            { name: 'Major General', minScore: 4100 },
+            { name: 'Brigadier General', minScore: 2600 },
+            { name: 'Colonel', minScore: 1600 },
+            { name: 'Lieutenant Colonel', minScore: 1000 },
+            { name: 'Major', minScore: 600 },
+            { name: 'Captain', minScore: 300 },
+            { name: 'First Lieutenant', minScore: 100 },
+            { name: 'Second Lieutenant', minScore: 0 }
+        ];
+
+        // NEW: List of error criteria for analysis
+        const ERROR_CRITERIA = [
+            'Incorrect Word Choice', 'Omission or Addition', 'Incorrect Tense or Aspect', 'Article Errors',
+            'Mistranslating Idioms and Proverbs', 'Incorrect Register or Formality', 'Loss of Nuance or Connotation',
+            'incorrect Word Order', 'Preposition Errors', 'Literal Translation'
+        ];
+
+        // --- DOM Elements ---
+        const bengaliSentenceEl = document.getElementById('bengali-sentence');
+        const englishTranslationEl = document.getElementById('english-translation');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const resultsEl = document.getElementById('results');
+        const scoreEl = document.getElementById('score');
+        const evaluationEl = document.getElementById('evaluation');
+        const correctionEl = document.getElementById('correction');
+        const spinner = document.getElementById('spinner');
+        const dailyProgressBar = document.getElementById('daily-progress-bar');
+        const dailyProgressText = document.getElementById('daily-progress-text');
+        const weeklyProgressBar = document.getElementById('weekly-progress-bar');
+        const weeklyProgressText = document.getElementById('weekly-progress-text');
+        const rankNameEl = document.getElementById('rank-name');
+        const rankScoreEl = document.getElementById('rank-score');
+        const errorChartContainer = document.getElementById('error-chart-container'); // NEW
+
+        let currentSentence;
+        let currentSentenceIndex = -1;
+        let totalScore = 0;
+        let dailyScore = 0;
+        let weeklyScore = 0;
+
+        // --- Date Helper Functions ---
+        function getTodaysDateString() { return new Date().toISOString().split('T')[0]; }
+
+        function getWeekStartDateString() {
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+            const monday = new Date(new Date(now).setDate(diff));
+            return monday.toISOString().split('T')[0];
+        }
+
+        // --- Score Management ---
+        function loadTotalScore() {
+            const savedScore = localStorage.getItem(SCORE_STORAGE_KEY);
+            return savedScore ? parseInt(savedScore, 10) : 0;
+        }
+
+        function saveTotalScore(score) { localStorage.setItem(SCORE_STORAGE_KEY, score); }
+        
+        function loadAndCheckGoalScores() {
+            const todayStr = getTodaysDateString();
+            const weekStartStr = getWeekStartDateString();
+
+            const dailyData = JSON.parse(localStorage.getItem(DAILY_SCORE_KEY)) || { date: todayStr, score: 0 };
+            dailyScore = (dailyData.date === todayStr) ? dailyData.score : 0;
+            if (dailyData.date !== todayStr) localStorage.setItem(DAILY_SCORE_KEY, JSON.stringify({ date: todayStr, score: 0 }));
+
+            const weeklyData = JSON.parse(localStorage.getItem(WEEKLY_SCORE_KEY)) || { weekStartDate: weekStartStr, score: 0 };
+            weeklyScore = (weeklyData.weekStartDate === weekStartStr) ? weeklyData.score : 0;
+            if (weeklyData.weekStartDate !== weekStartStr) localStorage.setItem(WEEKLY_SCORE_KEY, JSON.stringify({ weekStartDate: weekStartStr, score: 0 }));
+        }
+
+        // --- UI Update Functions ---
+        function updateRankAndScoreDisplay() {
+            const currentRank = getRank(totalScore);
+            rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
+            rankScoreEl.textContent = `Total Score: ${totalScore.toLocaleString()}`;
+        }
+
+        function updateProgressBars() {
+            const dailyPercent = Math.min((dailyScore / DAILY_GOAL) * 100, 100);
+            dailyProgressBar.style.width = `${dailyPercent}%`;
+            dailyProgressText.textContent = `${dailyScore} / ${DAILY_GOAL}`;
+
+            const weeklyPercent = Math.min((weeklyScore / WEEKLY_GOAL) * 100, 100);
+            weeklyProgressBar.style.width = `${weeklyPercent}%`;
+            weeklyProgressText.textContent = `${weeklyScore} / ${WEEKLY_GOAL}`;
+        }
+
+        // NEW: Function to dynamically create the error chart structure
+        function setupErrorChart() {
+            errorChartContainer.innerHTML = ''; // Clear previous content
+            ERROR_CRITERIA.forEach((criteria, index) => {
+                const item = document.createElement('div');
+                item.className = 'error-bar-item';
+                item.innerHTML = `
+                    <span class="error-label" title="${criteria}">${criteria}</span>
+                    <div class="error-bar-container">
+                        <div class="error-bar" id="error-bar-${index}"></div>
+                    </div>
+                    <span class="error-count" id="error-count-${index}">0</span>
+                `;
+                errorChartContainer.appendChild(item);
+            });
+        }
+
+        // NEW: Function to update the error chart with current data
+        function updateErrorChart() {
+            const errorData = JSON.parse(localStorage.getItem(ERROR_ANALYSIS_KEY)) || {};
+            const counts = ERROR_CRITERIA.map(c => errorData[c] || 0);
+            const maxCount = Math.max(1, ...counts); // Use 1 as minimum to avoid division by zero
+
+            counts.forEach((count, index) => {
+                const percent = (count / maxCount) * 100;
+                document.getElementById(`error-bar-${index}`).style.width = `${percent}%`;
+                document.getElementById(`error-count-${index}`).textContent = count;
+            });
+        }
+
+        // --- Core Application Logic ---
+        function getRank(score) {
+            const rankData = {
+                'General': '⭐️⭐️⭐️⭐️', 'Lieutenant General': '⭐️⭐️⭐️', 'Major General': '⭐️⭐️', 'Brigadier General': '⭐️',
+                'Colonel': '🦅', 'Lieutenant Colonel': '🦅', 'Major': '🎖️', 'Captain': '🎖️',
+                'First Lieutenant': '🔰', 'Second Lieutenant': '🔰'
+            };
+            for (const rank of RANKS) {
+                if (score >= rank.minScore) return { name: rank.name, emoji: rankData[rank.name] || '' };
+            }
+            return { name: 'Second Lieutenant', emoji: '🔰' };
+        }
+
+        function getNewSentence() {
+            let usedIndices = JSON.parse(localStorage.getItem(USED_INDICES_KEY)) || [];
+            const availableIndices = sentences.map((_, i) => i).filter(i => !usedIndices.includes(i));
+            
+            if (availableIndices.length === 0) {
+                showTemporaryMessage("You've completed all sentences! Starting over. Great job!", true);
+                localStorage.setItem(USED_INDICES_KEY, JSON.stringify([]));
+                return getNewSentence();
+            }
+            
+            const newSentenceIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+            currentSentenceIndex = newSentenceIndex;
+            usedIndices.push(newSentenceIndex);
+            localStorage.setItem(USED_INDICES_KEY, JSON.stringify(usedIndices));
+            return sentences[newSentenceIndex];
+        }
+
+        function displaySentence() {
+            currentSentence = getNewSentence();
+            bengaliSentenceEl.textContent = currentSentence.Bengali;
+            englishTranslationEl.value = '';
+            resultsEl.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+            submitBtn.disabled = false;
+            englishTranslationEl.disabled = false;
+        }
+
+        async function getEvaluation() {
+            const userTranslation = englishTranslationEl.value.trim();
+            if (!userTranslation) { showTemporaryMessage("Please enter your translation."); return; }
+            if (API_KEY === "PASTE_YOUR_API_KEY_HERE") { showTemporaryMessage("Error: Please replace the placeholder API_KEY in the code."); return; }
+
+            spinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+            englishTranslationEl.disabled = true;
+
+            const today = new Date();
+            const location = "Khulna, Bangladesh";
+            const prompt = `You are an expert, friendly, and encouraging Bangla to English language tutor in ${location}. Your goal is to help a student improve their translation skills. Today is ${today.toDateString()}.
+
+Task: Evaluate the user's translation against the standard one. Be precise and helpful. Respond ONLY in valid, minified JSON.
+
+The JSON object must have these keys:
+1. "score": An integer out of 10, based on accuracy, grammar, and nuance.
+2. "evaluation": A detailed but concise explanation of the user's performance. Start with a positive, encouraging comment. Then, clearly explain any errors, referencing the specific error types found. Provide a clear reason WHY the suggested correction is better (e.g., "The word 'assault' is stronger and fits the context of 'আঘাত' better than 'hit'").
+3. "correction": The ideal, natural-sounding English translation.
+4. "errors_found": An array of strings. Populate this array ONLY with the exact strings from the following list if an error is found. Do not add any other text or explanations here.
+Error List: ${JSON.stringify(ERROR_CRITERIA)}
+
+- Original Bangla Sentence: ${currentSentence.Bengali}
+- Standard English Translation: ${currentSentence.English}
+- User's Translation: ${userTranslation}`;
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const responseData = await response.json();
+                if (!response.ok) throw new Error(`API error! Status: ${response.status}.`);
+                
+                let responseText = responseData.candidates[0].content.parts[0].text;
+                const jsonString = responseText.slice(responseText.indexOf('{'), responseText.lastIndexOf('}') + 1);
+                const jsonResponse = JSON.parse(jsonString);
+                
+                const attemptScore = jsonResponse.score;
+
+                if (attemptScore < 6) {
+                    let usedIndices = JSON.parse(localStorage.getItem(USED_INDICES_KEY)) || [];
+                    const newUsedIndices = usedIndices.filter(index => index !== currentSentenceIndex);
+                    localStorage.setItem(USED_INDICES_KEY, JSON.stringify(newUsedIndices));
+                    showTemporaryMessage("You'll see this sentence again to practice!");
+                }
+                
+                // NEW: Update error counts based on AI response
+                const errorsFound = jsonResponse.errors_found || [];
+                if (Array.isArray(errorsFound) && errorsFound.length > 0) {
+                    let errorData = JSON.parse(localStorage.getItem(ERROR_ANALYSIS_KEY)) || {};
+                    errorsFound.forEach(error => {
+                        if (ERROR_CRITERIA.includes(error)) {
+                            errorData[error] = (errorData[error] || 0) + 1;
+                        }
+                    });
+                    localStorage.setItem(ERROR_ANALYSIS_KEY, JSON.stringify(errorData));
+                }
+
+                totalScore += attemptScore;
+                dailyScore += attemptScore;
+                weeklyScore += attemptScore;
+                saveTotalScore(totalScore);
+                localStorage.setItem(DAILY_SCORE_KEY, JSON.stringify({ date: getTodaysDateString(), score: dailyScore }));
+                localStorage.setItem(WEEKLY_SCORE_KEY, JSON.stringify({ weekStartDate: getWeekStartDateString(), score: weeklyScore }));
+                
+                updateRankAndScoreDisplay();
+                updateProgressBars();
+                updateErrorChart(); // Update chart with new data
+
+                scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
+                evaluationEl.textContent = jsonResponse.evaluation;
+                correctionEl.textContent = jsonResponse.correction;
+                resultsEl.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Fetch or Parsing Error:", error);
+                showTemporaryMessage(`An error occurred: ${error.message}`);
+            } finally {
+                spinner.classList.add('hidden');
+                submitBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+            }
+        }
+        
+        function showTemporaryMessage(message, isSuccess = false) {
+            const messageBox = document.createElement('div');
+            messageBox.textContent = message;
+            Object.assign(messageBox.style, {
+                position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+                backgroundColor: isSuccess ? '#34c759' : '#ff4d4d', color: 'white',
+                padding: '10px 20px', borderRadius: '8px', zIndex: '1000',
+                opacity: '0', transition: 'opacity 0.5s'
+            });
+            document.body.appendChild(messageBox);
+            setTimeout(() => { messageBox.style.opacity = '1'; }, 10);
+            setTimeout(() => {
+                messageBox.style.opacity = '0';
+                setTimeout(() => { document.body.removeChild(messageBox); }, 500);
+            }, 3000);
+        }
+
+        // --- Event Listeners & Initial Load ---
+        submitBtn.addEventListener('click', getEvaluation);
+        nextBtn.addEventListener('click', displaySentence);
+
+        totalScore = loadTotalScore(); 
+        loadAndCheckGoalScores();
+        setupErrorChart();
+        updateRankAndScoreDisplay(); 
+        updateProgressBars();
+        updateErrorChart();
+        displaySentence();
+    </script>
+</body>
+</html>
+
