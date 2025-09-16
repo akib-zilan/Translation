@@ -628,6 +628,34 @@
             englishTranslationEl.disabled = false;
         }
 
+        // NEW: Fetch with Exponential Backoff
+        async function fetchWithRetry(url, options, retries = 3, initialDelay = 1000) {
+            let lastError;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return response;
+                    }
+                    if (response.status === 503 || response.status === 500 || response.status === 504) {
+                        console.log(`Attempt ${i + 1} failed with status ${response.status}. Retrying in ${initialDelay / 1000}s...`);
+                        lastError = new Error(`API error! Status: ${response.status}.`);
+                        await new Promise(resolve => setTimeout(resolve, initialDelay));
+                        initialDelay *= 2;
+                        continue;
+                    }
+                    throw new Error(`API error! Status: ${response.status}.`);
+                } catch (error) {
+                    lastError = error;
+                    console.log(`Attempt ${i + 1} failed with a network error. Retrying in ${initialDelay / 1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, initialDelay));
+                    initialDelay *= 2;
+                }
+            }
+            throw lastError;
+        }
+
+
         async function getEvaluation() {
             const userTranslation = englishTranslationEl.value.trim();
             if (!userTranslation) { showTemporaryMessage("Please enter your translation."); return; }
@@ -641,14 +669,14 @@
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
+                const response = await fetchWithRetry(apiUrl, { // MODIFIED: Using fetchWithRetry
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
 
                 const responseData = await response.json();
-                if (!response.ok) throw new Error(`API error! Status: ${response.status}.`);
+                if (!responseData.candidates) throw new Error("Invalid API response structure.");
                 
                 let responseText = responseData.candidates[0].content.parts[0].text;
                 const jsonString = responseText.slice(responseText.indexOf('{'), responseText.lastIndexOf('}') + 1);
@@ -670,12 +698,11 @@
                      });
                  }
 
-                userData.totalScore += attemptScore;
-                userData.dailyScoreData.score += attemptScore;
-                userData.weeklyScoreData.score += attemptScore;
+                userData.totalScore = (userData.totalScore || 0) + attemptScore;
+                userData.dailyScoreData.score = (userData.dailyScoreData.score || 0) + attemptScore;
+                userData.weeklyScoreData.score = (userData.weeklyScoreData.score || 0) + attemptScore;
                 
                 await saveDataToFirestore();
-                // UI will be updated by the listener automatically, so no need to call updateAllUI() here.
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
                 evaluationEl.textContent = jsonResponse.evaluation;
@@ -715,3 +742,4 @@
     </script>
 </body>
 </html>
+
