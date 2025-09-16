@@ -166,7 +166,7 @@
             margin-left: 10px;
         }
         #login-btn {
-             background-color: #34c759;
+            background-color: #34c759;
         }
 
         .goal {
@@ -417,7 +417,7 @@
             return monday.toISOString().split('T')[0];
         }
 
-        // --- NEW: Real-time Firestore Listener ---
+        // --- CORRECTED: Real-time Firestore Listener ---
         function setupFirestoreListener(userId) {
             if (firestoreUnsubscribe) {
                 firestoreUnsubscribe(); // Detach any old listener
@@ -425,19 +425,35 @@
             
             const docRef = doc(db, "users", userId);
             firestoreUnsubscribe = onSnapshot(docRef, (docSnap) => {
+                let needsWrite = false;
+
                 if (docSnap.exists()) {
                     userData = docSnap.data();
-                    // Check and reset daily/weekly scores if the date has changed
                     const todayStr = getTodaysDateString();
                     const weekStartStr = getWeekStartDateString();
-                    if (userData.dailyScoreData?.date !== todayStr) {
+
+                    // Ensure data structure is sound, initialize if parts are missing
+                    if (!userData.dailyScoreData) {
                         userData.dailyScoreData = { date: todayStr, score: 0 };
+                        needsWrite = true;
                     }
-                    if (userData.weeklyScoreData?.weekStartDate !== weekStartStr) {
+                    if (!userData.weeklyScoreData) {
                         userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                        needsWrite = true;
+                    }
+
+                    // Check and reset daily score if the date has changed
+                    if (userData.dailyScoreData.date !== todayStr) {
+                        userData.dailyScoreData = { date: todayStr, score: 0 };
+                        needsWrite = true;
+                    }
+                    // Check and reset weekly score if the week has changed
+                    if (userData.weeklyScoreData.weekStartDate !== weekStartStr) {
+                        userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                        needsWrite = true;
                     }
                 } else {
-                    // Set default data for a new user (it will be saved on first action)
+                    // Set default data for a new user
                     userData = {
                         totalScore: 0,
                         dailyScoreData: { date: getTodaysDateString(), score: 0 },
@@ -445,7 +461,19 @@
                         errorAnalysisData: {},
                         usedTranslationIndices: []
                     };
+                    needsWrite = true;
                 }
+
+                // If a reset occurred or it's a new user, save the data back to Firestore.
+                // This ensures the reset is persisted immediately.
+                if (needsWrite) {
+                    setDoc(docRef, userData, { merge: true });
+                    // The listener will fire again with the latest data, so we can just return
+                    // to avoid updating the UI with potentially stale local data.
+                    return;
+                }
+
+                // If no write was needed, update the UI with the current data.
                 updateAllUI();
                 
                 // Only get a new sentence on the very first load after login
@@ -635,12 +663,12 @@
                 
                 const errorsFound = jsonResponse.errors_found || [];
                  if (Array.isArray(errorsFound) && errorsFound.length > 0) {
-                    errorsFound.forEach(error => {
-                        if (ERROR_CRITERIA.includes(error)) {
-                            userData.errorAnalysisData[error] = (userData.errorAnalysisData[error] || 0) + 1;
-                        }
-                    });
-                }
+                     errorsFound.forEach(error => {
+                         if (ERROR_CRITERIA.includes(error)) {
+                             userData.errorAnalysisData[error] = (userData.errorAnalysisData[error] || 0) + 1;
+                         }
+                     });
+                 }
 
                 userData.totalScore += attemptScore;
                 userData.dailyScoreData.score += attemptScore;
@@ -687,4 +715,3 @@
     </script>
 </body>
 </html>
-
