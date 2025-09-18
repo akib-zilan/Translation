@@ -89,8 +89,17 @@
         #next-btn {
             background-color: #34c759;
         }
-        #next-btn:hover {
+        #next-btn:hover:not(:disabled) {
             background-color: #2ca349;
+        }
+        /* NEW: Styles for the Again button */
+        #again-btn {
+            background-color: transparent;
+            color: #007aff;
+            border: 1px solid #007aff;
+        }
+        #again-btn:hover:not(:disabled) {
+            background-color: rgba(0, 122, 255, 0.1);
         }
         #results {
             margin-top: 2rem;
@@ -269,6 +278,7 @@
             <textarea id="english-translation" placeholder="Type your English translation here..." disabled></textarea>
             <div class="buttons">
                 <button id="submit-btn" disabled>Check My Translation</button>
+                <button id="again-btn" class="hidden">Try Again</button>
                 <button id="next-btn" class="hidden">Next</button>
             </div>
             <div id="spinner" class="hidden"></div>
@@ -358,6 +368,7 @@
         const englishTranslationEl = document.getElementById('english-translation');
         const submitBtn = document.getElementById('submit-btn');
         const nextBtn = document.getElementById('next-btn');
+        const againBtn = document.getElementById('again-btn'); // NEW
         const resultsEl = document.getElementById('results');
         const scoreEl = document.getElementById('score');
         const evaluationEl = document.getElementById('evaluation');
@@ -597,6 +608,8 @@
             englishTranslationEl.value = '';
             resultsEl.classList.add('hidden');
             nextBtn.classList.add('hidden');
+            againBtn.classList.add('hidden'); // MODIFIED
+            againBtn.disabled = false; // MODIFIED: Re-enable for next round
             submitBtn.classList.remove('hidden');
             submitBtn.disabled = false;
             englishTranslationEl.disabled = false;
@@ -689,6 +702,7 @@
                 spinner.classList.add('hidden');
                 submitBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
+                againBtn.classList.remove('hidden'); // MODIFIED
             }
         }
         
@@ -709,6 +723,33 @@
         logoutBtn.addEventListener('click', signOutUser);
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
+        
+        // NEW: Event listener for the Again button
+        againBtn.addEventListener('click', async () => {
+            if (!currentUser || currentSentenceIndex === -1) return;
+
+            if (!userData.usedTranslationIndices) {
+                userData.usedTranslationIndices = [];
+            }
+            
+            const initialLength = userData.usedTranslationIndices.length;
+            userData.usedTranslationIndices = userData.usedTranslationIndices.filter(index => index !== currentSentenceIndex);
+
+            if (userData.usedTranslationIndices.length < initialLength) {
+                try {
+                    await saveDataToFirestore();
+                    showTemporaryMessage("This sentence will be repeated for more practice!", true);
+                    againBtn.disabled = true;
+                } catch (error) {
+                    console.error("Failed to update sentence list:", error);
+                    userData.usedTranslationIndices.push(currentSentenceIndex);
+                    showTemporaryMessage("Could not save preference. Please try again.");
+                }
+            } else {
+                 showTemporaryMessage("This sentence is already set to repeat.", true);
+                 againBtn.disabled = true;
+            }
+        });
         
         resetUI(); // Start with a clean slate before login
     </script>
