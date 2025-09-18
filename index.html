@@ -218,6 +218,8 @@
             color: #6e6e73;
             margin-top: 0.5rem;
         }
+        
+        /* MODIFIED: Styles for Current Error Display */
         .error-analysis-section {
             padding-top: 1.5rem;
             margin-top: 1.5rem;
@@ -231,40 +233,21 @@
             font-weight: 600;
             text-align: center;
         }
-        .error-bar-item {
+        #current-errors-container {
             display: flex;
-            align-items: center;
-            margin-bottom: 0.6rem;
-            font-size: 0.8rem;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
         }
-        .error-label {
-            width: 120px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-shrink: 0;
-            color: #6e6e73;
+        .error-tag {
+            background-color: #ff3b30;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
-        .error-bar-container {
-            flex-grow: 1;
-            height: 10px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            margin: 0 0.5rem;
-        }
-        .error-bar {
-            height: 100%;
-            width: 0%;
-            background-color: #ff9500;
-            border-radius: 5px;
-            transition: width 0.5s ease-in-out;
-        }
-        .error-count {
-            font-weight: 600;
-            min-width: 20px;
-            text-align: right;
-            color: #1d1d1f;
-        }
+
 
         @media (max-width: 950px) {
             .main-layout {
@@ -301,9 +284,9 @@
             <div id="auth-container">
                  <button id="login-btn">Sign in with Google</button>
                  <div id="user-info" class="hidden">
-                     <img id="user-photo" src="" alt="User photo">
-                     <span id="user-name"></span>
-                     <button id="logout-btn">Logout</button>
+                      <img id="user-photo" src="" alt="User photo">
+                      <span id="user-name"></span>
+                      <button id="logout-btn">Logout</button>
                  </div>
             </div>
 
@@ -333,9 +316,10 @@
                 <p id="rank-score">Total Score: 0</p>
             </div>
             
-            <div class="error-analysis-section">
-                <h3>Common Error Analysis</h3>
-                <div id="error-chart-container"></div>
+            <!-- MODIFIED: Section for displaying errors for the current sentence -->
+            <div class="error-analysis-section hidden">
+                <h3>Errors in this Translation</h3>
+                <div id="current-errors-container"></div>
             </div>
         </div>
     </div>
@@ -385,7 +369,8 @@
         const weeklyProgressText = document.getElementById('weekly-progress-text');
         const rankNameEl = document.getElementById('rank-name');
         const rankScoreEl = document.getElementById('rank-score');
-        const errorChartContainer = document.getElementById('error-chart-container');
+        const errorAnalysisSection = document.querySelector('.error-analysis-section');
+        const currentErrorsContainer = document.getElementById('current-errors-container');
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const authContainer = document.getElementById('auth-container');
@@ -458,7 +443,6 @@
                         totalScore: 0,
                         dailyScoreData: { date: getTodaysDateString(), score: 0 },
                         weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
-                        errorAnalysisData: {},
                         usedTranslationIndices: []
                     };
                     needsWrite = true;
@@ -533,14 +517,13 @@
 
         // --- UI Update Functions ---
         function resetUI() {
-            userData = { totalScore: 0, dailyScoreData: {score: 0}, weeklyScoreData: {score: 0}, errorAnalysisData: {} };
+            userData = { totalScore: 0, dailyScoreData: {score: 0}, weeklyScoreData: {score: 0} };
             updateAllUI();
         }
         
         function updateAllUI() {
             updateRankAndScoreDisplay(); 
             updateProgressBars();
-            updateErrorChart();
         }
 
         function updateRankAndScoreDisplay() {
@@ -563,32 +546,23 @@
             weeklyProgressText.textContent = `${weeklyScore} / ${WEEKLY_GOAL}`;
         }
 
-        function setupErrorChart() {
-            errorChartContainer.innerHTML = '';
-            ERROR_CRITERIA.forEach((criteria, index) => {
-                const item = document.createElement('div');
-                item.className = 'error-bar-item';
-                item.innerHTML = `
-                    <span class="error-label" title="${criteria}">${criteria}</span>
-                    <div class="error-bar-container">
-                        <div class="error-bar" id="error-bar-${index}"></div>
-                    </div>
-                    <span class="error-count" id="error-count-${index}">0</span>
-                `;
-                errorChartContainer.appendChild(item);
-            });
-        }
+        // NEW: Function to display errors for the current translation
+        function displayCurrentErrors(errors) {
+            currentErrorsContainer.innerHTML = ''; // Clear previous errors
 
-        function updateErrorChart() {
-            const errorData = userData.errorAnalysisData || {};
-            const counts = ERROR_CRITERIA.map(c => errorData[c] || 0);
-            const maxCount = Math.max(1, ...counts);
-
-            counts.forEach((count, index) => {
-                const percent = (count / maxCount) * 100;
-                document.getElementById(`error-bar-${index}`).style.width = `${percent}%`;
-                document.getElementById(`error-count-${index}`).textContent = count;
-            });
+            if (errors && errors.length > 0) {
+                errors.forEach(errorText => {
+                    if (ERROR_CRITERIA.includes(errorText)) { // Validate against our list
+                        const errorTag = document.createElement('div');
+                        errorTag.className = 'error-tag';
+                        errorTag.textContent = errorText;
+                        currentErrorsContainer.appendChild(errorTag);
+                    }
+                });
+                errorAnalysisSection.classList.remove('hidden');
+            } else {
+                errorAnalysisSection.classList.add('hidden');
+            }
         }
 
         // --- Core Application Logic ---
@@ -626,6 +600,10 @@
             submitBtn.classList.remove('hidden');
             submitBtn.disabled = false;
             englishTranslationEl.disabled = false;
+            
+            // Hide previous sentence's errors
+            errorAnalysisSection.classList.add('hidden');
+            currentErrorsContainer.innerHTML = '';
         }
 
         // NEW: Fetch with Exponential Backoff
@@ -689,14 +667,9 @@
                     showTemporaryMessage("You'll see this sentence again to practice!");
                 }
                 
+                // MODIFIED: Display current errors instead of tracking them
                 const errorsFound = jsonResponse.errors_found || [];
-                 if (Array.isArray(errorsFound) && errorsFound.length > 0) {
-                     errorsFound.forEach(error => {
-                         if (ERROR_CRITERIA.includes(error)) {
-                             userData.errorAnalysisData[error] = (userData.errorAnalysisData[error] || 0) + 1;
-                         }
-                     });
-                 }
+                displayCurrentErrors(errorsFound);
 
                 userData.totalScore = (userData.totalScore || 0) + attemptScore;
                 userData.dailyScoreData.score = (userData.dailyScoreData.score || 0) + attemptScore;
@@ -737,9 +710,7 @@
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
         
-        setupErrorChart();
         resetUI(); // Start with a clean slate before login
     </script>
 </body>
 </html>
-
