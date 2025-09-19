@@ -101,6 +101,12 @@
         #again-btn:hover:not(:disabled) {
             background-color: rgba(0, 122, 255, 0.1);
         }
+        #skip-btn {
+            background-color: #8e8e93;
+        }
+        #skip-btn:hover:not(:disabled) {
+            background-color: #636366;
+        }
         #results {
             margin-top: 2rem;
             text-align: left;
@@ -350,6 +356,7 @@
                 <button id="submit-btn" disabled>Check My Translation</button>
                 <button id="again-btn" class="hidden">Try Again</button>
                 <button id="next-btn" class="hidden">Next</button>
+                <button id="skip-btn" disabled>Skip</button>
             </div>
             <div id="spinner" class="hidden"></div>
             <div id="results" class="hidden">
@@ -447,6 +454,7 @@
         const submitBtn = document.getElementById('submit-btn');
         const nextBtn = document.getElementById('next-btn');
         const againBtn = document.getElementById('again-btn'); // NEW
+        const skipBtn = document.getElementById('skip-btn');
         const resultsEl = document.getElementById('results');
         const scoreEl = document.getElementById('score');
         const evaluationEl = document.getElementById('evaluation');
@@ -644,6 +652,7 @@
                 userInfo.classList.remove('hidden');
                 englishTranslationEl.disabled = false;
                 submitBtn.disabled = false;
+                skipBtn.disabled = false;
                 isInitialLoad = true; // Reset for new login
                 setupFirestoreListener(user.uid);
                 setupHallOfFameListener(); // NEW
@@ -656,6 +665,7 @@
                 userInfo.classList.add('hidden');
                 englishTranslationEl.disabled = true;
                 submitBtn.disabled = true;
+                skipBtn.disabled = true;
                 bengaliSentenceEl.textContent = "Please log in to start practicing.";
                 hallOfFameList.innerHTML = ''; // NEW
                 resetUI();
@@ -757,6 +767,8 @@
             againBtn.disabled = false;
             submitBtn.classList.remove('hidden');
             submitBtn.disabled = false;
+            skipBtn.classList.remove('hidden');
+            skipBtn.disabled = false;
             englishTranslationEl.disabled = false;
 
             errorAnalysisSection.classList.add('hidden');
@@ -797,6 +809,7 @@
 
             spinner.classList.remove('hidden');
             submitBtn.disabled = true;
+            skipBtn.disabled = true;
             englishTranslationEl.disabled = true;
 
             const prompt = `You are an expert, friendly, and encouraging Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
@@ -843,6 +856,7 @@
             } finally {
                 spinner.classList.add('hidden');
                 submitBtn.classList.add('hidden');
+                skipBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
                 againBtn.classList.remove('hidden');
             }
@@ -865,6 +879,7 @@
         logoutBtn.addEventListener('click', signOutUser);
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
+        skipBtn.addEventListener('click', () => location.reload());
 
         againBtn.addEventListener('click', async () => {
             if (!currentUser || currentSentenceIndex === -1) return;
