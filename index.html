@@ -257,12 +257,13 @@
             font-weight: 500;
         }
 
-        /* NEW: Hall of Fame Styles */
+        /* MODIFIED: Hall of Fame Styles */
         .hall-of-fame-section {
             text-align: center;
-            padding-top: 1.5rem;
+            padding: 1.5rem;
             margin-top: 1.5rem;
             border-top: 1px solid #e5e5e5;
+            background: linear-gradient(180deg, #f9f9f9 0%, #ffffff 100%);
         }
         .hall-of-fame-section h3 {
             color: #1d1d1f;
@@ -282,11 +283,30 @@
         .hof-user {
             display: flex;
             align-items: center;
-            padding: 0.5rem 0.2rem;
+            padding: 0.6rem 0.5rem;
             border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+            border-radius: 8px;
+            margin-bottom: 5px;
         }
         .hof-user:last-child {
             border-bottom: none;
+            margin-bottom: 0;
+        }
+        .hof-user:hover {
+            background-color: #f5f5f7;
+        }
+        .hof-user-1 {
+            background-color: #fffbeb;
+            border-left: 4px solid #facc15;
+        }
+        .hof-user-2 {
+            background-color: #f8fafc;
+            border-left: 4px solid #d1d5db;
+        }
+        .hof-user-3 {
+            background-color: #fdf8f6;
+            border-left: 4px solid #f97316;
         }
         .hof-user img {
             width: 35px;
@@ -541,7 +561,7 @@
             });
         }
         
-        // NEW: Hall of Fame Listener
+        // MODIFIED: Hall of Fame Listener
         function setupHallOfFameListener() {
             if (hallOfFameUnsubscribe) {
                 hallOfFameUnsubscribe();
@@ -554,28 +574,45 @@
                     users.push(doc.data());
                 });
 
-                // Sort users by totalScore in descending order in memory
-                users.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+                const currentWeekStart = getWeekStartDateString();
+                const weeklyParticipants = users.filter(user => 
+                    user.weeklyScoreData &&
+                    user.weeklyScoreData.weekStartDate === currentWeekStart &&
+                    (user.weeklyScoreData.score || 0) > 0
+                );
 
-                const topUsers = users.slice(0, 10); // Display top 10
+                weeklyParticipants.sort((a, b) => (b.weeklyScoreData.score || 0) - (a.weeklyScoreData.score || 0));
 
-                hallOfFameList.innerHTML = ''; // Clear the list
+                const topUsers = weeklyParticipants.slice(0, 10);
 
-                topUsers.forEach(user => {
+                hallOfFameList.innerHTML = '';
+
+                if (topUsers.length === 0) {
+                    hallOfFameList.innerHTML = '<li style="text-align: center; color: #6e6e73; padding: 1rem 0;">No participants this week yet. Be the first!</li>';
+                    return;
+                }
+
+                topUsers.forEach((user, index) => {
                     const userRank = getRank(user.totalScore || 0);
                     const listItem = document.createElement('li');
                     listItem.className = 'hof-user';
+                    
+                    if (index === 0) listItem.classList.add('hof-user-1');
+                    if (index === 1) listItem.classList.add('hof-user-2');
+                    if (index === 2) listItem.classList.add('hof-user-3');
+                    
                     listItem.innerHTML = `
                         <img src="${user.photoURL || 'https://placehold.co/40x40/EFEFEF/AAAAAA?text=?'}" alt="${user.displayName || 'User'}">
                         <div class="hof-user-info">
                             <div class="hof-user-name">${user.displayName || 'Anonymous User'}</div>
-                            <div class="hof-user-details">${userRank.emoji} ${userRank.name} - ${(user.totalScore || 0).toLocaleString()} pts</div>
+                            <div class="hof-user-details">${userRank.emoji} ${userRank.name} - <b>${(user.weeklyScoreData.score || 0).toLocaleString()}</b> pts this week</div>
                         </div>
                     `;
                     hallOfFameList.appendChild(listItem);
                 });
             });
         }
+
 
         async function saveDataToFirestore() {
             if (!currentUser) return;
