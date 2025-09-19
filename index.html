@@ -879,7 +879,7 @@
         logoutBtn.addEventListener('click', signOutUser);
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
-        skipBtn.addEventListener('click', () => location.reload());
+        skipBtn.addEventListener('click', displaySentence);
 
         againBtn.addEventListener('click', async () => {
             if (!currentUser || currentSentenceIndex === -1) return;
