@@ -303,16 +303,7 @@
             <h2>Your Progress</h2>
             <div class="goal">
                 <div class="goal-header">
-                    <span>Daily Goal</span>
-                    <span id="daily-progress-text">0 / 100</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div id="daily-progress-bar" class="progress-bar"></div>
-                </div>
-            </div>
-            <div class="goal">
-                <div class="goal-header">
-                    <span>Weekly Goal</span>
+                    <span id="weekly-goal-label">Weekly Goal</span>
                     <span id="weekly-progress-text">0 / 1000</span>
                 </div>
                 <div class="progress-bar-container">
@@ -378,6 +369,7 @@
         const dailyProgressText = document.getElementById('daily-progress-text');
         const weeklyProgressBar = document.getElementById('weekly-progress-bar');
         const weeklyProgressText = document.getElementById('weekly-progress-text');
+        const weeklyGoalLabel = document.getElementById('weekly-goal-label'); // Get the new element
         const rankNameEl = document.getElementById('rank-name');
         const rankScoreEl = document.getElementById('rank-score');
         const errorAnalysisSection = document.querySelector('.error-analysis-section');
@@ -529,12 +521,14 @@
         // --- UI Update Functions ---
         function resetUI() {
             userData = { totalScore: 0, dailyScoreData: {score: 0}, weeklyScoreData: {score: 0} };
+            weeklyGoalLabel.textContent = 'Weekly Goal'; // Reset the label text
             updateAllUI();
         }
         
         function updateAllUI() {
             updateRankAndScoreDisplay(); 
             updateProgressBars();
+            updateWeeklyGoalLabel(); // Add this call
         }
 
         function updateRankAndScoreDisplay() {
@@ -555,6 +549,14 @@
             const weeklyPercent = Math.min((weeklyScore / WEEKLY_GOAL) * 100, 100);
             weeklyProgressBar.style.width = `${weeklyPercent}%`;
             weeklyProgressText.textContent = `${weeklyScore} / ${WEEKLY_GOAL}`;
+        }
+
+        // NEW: Function to update the weekly goal label with the day number
+        function updateWeeklyGoalLabel() {
+            // Monday is 1, Tuesday is 2, ..., Sunday is 7
+            const dayOfWeek = new Date().getDay();
+            const dayNumber = dayOfWeek === 0 ? 7 : dayOfWeek; // Make Sunday day 7
+            weeklyGoalLabel.textContent = `Weekly Goal (Day ${dayNumber})`;
         }
 
         // NEW: Function to display errors for the current translation
@@ -755,3 +757,4 @@
     </script>
 </body>
 </html>
+
