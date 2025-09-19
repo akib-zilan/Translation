@@ -257,6 +257,56 @@
             font-weight: 500;
         }
 
+        /* NEW: Hall of Fame Styles */
+        .hall-of-fame-section {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+        }
+        .hall-of-fame-section h3 {
+            color: #1d1d1f;
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        #hall-of-fame-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .hof-user {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.2rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .hof-user:last-child {
+            border-bottom: none;
+        }
+        .hof-user img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .hof-user-info {
+            flex-grow: 1;
+        }
+        .hof-user-name {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 0.95rem;
+        }
+        .hof-user-details {
+            font-size: 0.8rem;
+            color: #6e6e73;
+        }
+
 
         @media (max-width: 950px) {
             .main-layout {
@@ -326,6 +376,14 @@
                 <p id="rank-score">Total Score: 0</p>
             </div>
 
+            <!-- NEW: Hall of Fame Section -->
+            <div class="hall-of-fame-section">
+                <h3>Hall of Fame</h3>
+                <ul id="hall-of-fame-list">
+                    <!-- Populated by JavaScript -->
+                </ul>
+            </div>
+
             <!-- MODIFIED: Section for displaying errors for the current sentence -->
             <div class="error-analysis-section hidden">
                 <h3>Errors in this Translation</h3>
@@ -341,7 +399,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // --- Configuration ---
         const API_KEY = "AIzaSyCND3EhkA3cLclRUmXlvW9LWHqIH91H3Bc";
@@ -378,7 +436,7 @@
         const dailyProgressText = document.getElementById('daily-progress-text');
         const weeklyProgressBar = document.getElementById('weekly-progress-bar');
         const weeklyProgressText = document.getElementById('weekly-progress-text');
-        const weeklyGoalLabel = document.getElementById('weekly-goal-label'); // MODIFIED
+        const weeklyGoalLabel = document.getElementById('weekly-goal-label');
         const rankNameEl = document.getElementById('rank-name');
         const rankScoreEl = document.getElementById('rank-score');
         const errorAnalysisSection = document.querySelector('.error-analysis-section');
@@ -389,6 +447,7 @@
         const userInfo = document.getElementById('user-info');
         const userNameEl = document.getElementById('user-name');
         const userPhotoEl = document.getElementById('user-photo');
+        const hallOfFameList = document.getElementById('hall-of-fame-list');
 
 
         // --- Firebase Initialization ---
@@ -402,6 +461,7 @@
         let currentSentence;
         let currentSentenceIndex = -1;
         let firestoreUnsubscribe = null; // To hold the listener cleanup function
+        let hallOfFameUnsubscribe = null; // NEW: For Hall of Fame listener
         let isInitialLoad = true;
 
         // --- Date Helper Functions (Unchanged) ---
@@ -426,10 +486,17 @@
 
                 if (docSnap.exists()) {
                     userData = docSnap.data();
+
+                    // NEW: Check if user profile needs an update
+                    if (userData.displayName !== currentUser.displayName || userData.photoURL !== currentUser.photoURL) {
+                        userData.displayName = currentUser.displayName;
+                        userData.photoURL = currentUser.photoURL;
+                        needsWrite = true;
+                    }
+                    
                     const todayStr = getTodaysDateString();
                     const weekStartStr = getWeekStartDateString();
 
-                    // Ensure data structure is sound, initialize if parts are missing
                     if (!userData.dailyScoreData) {
                         userData.dailyScoreData = { date: todayStr, score: 0 };
                         needsWrite = true;
@@ -439,12 +506,10 @@
                         needsWrite = true;
                     }
 
-                    // Check and reset daily score if the date has changed
                     if (userData.dailyScoreData.date !== todayStr) {
                         userData.dailyScoreData = { date: todayStr, score: 0 };
                         needsWrite = true;
                     }
-                    // Check and reset weekly score if the week has changed
                     if (userData.weeklyScoreData.weekStartDate !== weekStartStr) {
                         userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
                         needsWrite = true;
@@ -452,6 +517,8 @@
                 } else {
                     // Set default data for a new user
                     userData = {
+                        displayName: currentUser.displayName,
+                        photoURL: currentUser.photoURL,
                         totalScore: 0,
                         dailyScoreData: { date: getTodaysDateString(), score: 0 },
                         weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
@@ -460,29 +527,58 @@
                     needsWrite = true;
                 }
 
-                // If a reset occurred or it's a new user, save the data back to Firestore.
-                // This ensures the reset is persisted immediately.
                 if (needsWrite) {
                     setDoc(docRef, userData, { merge: true });
-                    // The listener will fire again with the latest data, so we can just return
-                    // to avoid updating the UI with potentially stale local data.
                     return;
                 }
 
-                // If no write was needed, update the UI with the current data.
                 updateAllUI();
 
-                // Only get a new sentence on the very first load after login
                 if (isInitialLoad) {
                     displaySentence();
                     isInitialLoad = false;
                 }
             });
         }
+        
+        // NEW: Hall of Fame Listener
+        function setupHallOfFameListener() {
+            if (hallOfFameUnsubscribe) {
+                hallOfFameUnsubscribe();
+            }
+
+            const usersRef = collection(db, "users");
+            hallOfFameUnsubscribe = onSnapshot(usersRef, (querySnapshot) => {
+                const users = [];
+                querySnapshot.forEach((doc) => {
+                    users.push(doc.data());
+                });
+
+                // Sort users by totalScore in descending order in memory
+                users.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+
+                const topUsers = users.slice(0, 10); // Display top 10
+
+                hallOfFameList.innerHTML = ''; // Clear the list
+
+                topUsers.forEach(user => {
+                    const userRank = getRank(user.totalScore || 0);
+                    const listItem = document.createElement('li');
+                    listItem.className = 'hof-user';
+                    listItem.innerHTML = `
+                        <img src="${user.photoURL || 'https://placehold.co/40x40/EFEFEF/AAAAAA?text=?'}" alt="${user.displayName || 'User'}">
+                        <div class="hof-user-info">
+                            <div class="hof-user-name">${user.displayName || 'Anonymous User'}</div>
+                            <div class="hof-user-details">${userRank.emoji} ${userRank.name} - ${(user.totalScore || 0).toLocaleString()} pts</div>
+                        </div>
+                    `;
+                    hallOfFameList.appendChild(listItem);
+                });
+            });
+        }
 
         async function saveDataToFirestore() {
             if (!currentUser) return;
-            // Use setDoc with merge:true to avoid overwriting data from another client
             const docRef = doc(db, "users", currentUser.uid);
             await setDoc(docRef, userData, { merge: true });
         }
@@ -513,17 +609,19 @@
                 submitBtn.disabled = false;
                 isInitialLoad = true; // Reset for new login
                 setupFirestoreListener(user.uid);
+                setupHallOfFameListener(); // NEW
             } else {
                 // User is signed out
-                if (firestoreUnsubscribe) {
-                    firestoreUnsubscribe(); // Detach the listener
-                }
+                if (firestoreUnsubscribe) firestoreUnsubscribe();
+                if (hallOfFameUnsubscribe) hallOfFameUnsubscribe(); // NEW
+                
                 loginBtn.classList.remove('hidden');
                 userInfo.classList.add('hidden');
                 englishTranslationEl.disabled = true;
                 submitBtn.disabled = true;
                 bengaliSentenceEl.textContent = "Please log in to start practicing.";
-                resetUI(); // Reset progress display on logout
+                hallOfFameList.innerHTML = ''; // NEW
+                resetUI();
             }
         });
 
@@ -536,10 +634,9 @@
         function updateAllUI() {
             updateRankAndScoreDisplay(); 
             updateProgressBars();
-            updateWeeklyDayCount(); // MODIFIED
+            updateWeeklyDayCount();
         }
         
-        // MODIFIED: New function to update the week day count
         function updateWeeklyDayCount() {
             const now = new Date();
             let dayOfWeek = now.getDay(); // Sunday is 0, Monday is 1, etc.
@@ -569,13 +666,12 @@
             weeklyProgressText.textContent = `${weeklyScore} / ${WEEKLY_GOAL}`;
         }
 
-        // NEW: Function to display errors for the current translation
         function displayCurrentErrors(errors) {
-            currentErrorsContainer.innerHTML = ''; // Clear previous errors
+            currentErrorsContainer.innerHTML = ''; 
 
             if (errors && errors.length > 0) {
                 errors.forEach(errorText => {
-                    if (ERROR_CRITERIA.includes(errorText)) { // Validate against our list
+                    if (ERROR_CRITERIA.includes(errorText)) {
                         const errorTag = document.createElement('div');
                         errorTag.className = 'error-tag';
                         errorTag.textContent = errorText;
@@ -620,18 +716,16 @@
             englishTranslationEl.value = '';
             resultsEl.classList.add('hidden');
             nextBtn.classList.add('hidden');
-            againBtn.classList.add('hidden'); // MODIFIED
-            againBtn.disabled = false; // MODIFIED: Re-enable for next round
+            againBtn.classList.add('hidden');
+            againBtn.disabled = false;
             submitBtn.classList.remove('hidden');
             submitBtn.disabled = false;
             englishTranslationEl.disabled = false;
 
-            // Hide previous sentence's errors
             errorAnalysisSection.classList.add('hidden');
             currentErrorsContainer.innerHTML = '';
         }
 
-        // NEW: Fetch with Exponential Backoff
         async function fetchWithRetry(url, options, retries = 3, initialDelay = 1000) {
             let lastError;
             for (let i = 0; i < retries; i++) {
@@ -672,7 +766,7 @@
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-                const response = await fetchWithRetry(apiUrl, { // MODIFIED: Using fetchWithRetry
+                const response = await fetchWithRetry(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -692,7 +786,6 @@
                     showTemporaryMessage("You'll see this sentence again to practice!");
                 }
 
-                // MODIFIED: Display current errors instead of tracking them
                 const errorsFound = jsonResponse.errors_found || [];
                 displayCurrentErrors(errorsFound);
 
@@ -714,7 +807,7 @@
                 spinner.classList.add('hidden');
                 submitBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
-                againBtn.classList.remove('hidden'); // MODIFIED
+                againBtn.classList.remove('hidden');
             }
         }
 
@@ -736,7 +829,6 @@
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
 
-        // NEW: Event listener for the Again button
         againBtn.addEventListener('click', async () => {
             if (!currentUser || currentSentenceIndex === -1) return;
 
@@ -767,3 +859,4 @@
     </script>
 </body>
 </html>
+
