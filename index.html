@@ -367,8 +367,7 @@
         </div>
 
         <div class="goals-container">
-             <!-- NEW: Authentication Section -->
-            <div id="auth-container">
+             <div id="auth-container">
                  <button id="login-btn">Sign in with Google</button>
                  <div id="user-info" class="hidden">
                       <img id="user-photo" src="" alt="User photo">
@@ -403,15 +402,12 @@
                 <p id="rank-score">Total Score: 0</p>
             </div>
 
-            <!-- NEW: Hall of Fame Section -->
             <div class="hall-of-fame-section">
                 <h3>Hall of Fame</h3>
                 <ul id="hall-of-fame-list">
-                    <!-- Populated by JavaScript -->
-                </ul>
+                    </ul>
             </div>
 
-            <!-- MODIFIED: Section for displaying errors for the current sentence -->
             <div class="error-analysis-section hidden">
                 <h3>Errors in this Translation</h3>
                 <div id="current-errors-container"></div>
@@ -421,7 +417,6 @@
 
     <script src="sentences.js"></script>
 
-    <!-- NEW: Import Firebase Libraries -->
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -812,7 +807,7 @@
             skipBtn.disabled = true;
             englishTranslationEl.disabled = true;
 
-            const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
+            const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Be very strict with scoring. Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
@@ -911,5 +906,3 @@
     </script>
 </body>
 </html>
-
-
