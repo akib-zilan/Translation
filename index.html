@@ -332,7 +332,103 @@
             font-size: 0.8rem;
             color: #6e6e73;
         }
+        
+        /* NEW: Word List Button */
+        .word-list-section {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+        }
+        #my-words-btn {
+            width: 100%;
+            background-color: #8e8e93;
+        }
+        #my-words-btn:hover:not(:disabled) {
+            background-color: #636366;
+        }
 
+        /* NEW: Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay:not(.hidden) .modal-content {
+            transform: scale(1);
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            color: #1d1d1f;
+            text-align: center;
+        }
+        #modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            font-size: 2rem;
+            color: #8e8e93;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+        }
+        #saved-words-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1.5rem;
+        }
+        #saved-words-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 1.1rem;
+        }
+         #saved-words-list li:last-child {
+            border-bottom: none;
+        }
+        .delete-word-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 28px;
+            text-align: center;
+        }
 
         @media (max-width: 950px) {
             .main-layout {
@@ -368,13 +464,13 @@
 
         <div class="goals-container">
              <div id="auth-container">
-                 <button id="login-btn">Sign in with Google</button>
-                 <div id="user-info" class="hidden">
-                      <img id="user-photo" src="" alt="User photo">
-                      <span id="user-name"></span>
-                      <button id="logout-btn">Logout</button>
-                 </div>
-            </div>
+                  <button id="login-btn">Sign in with Google</button>
+                  <div id="user-info" class="hidden">
+                        <img id="user-photo" src="" alt="User photo">
+                        <span id="user-name"></span>
+                        <button id="logout-btn">Logout</button>
+                  </div>
+             </div>
 
             <h2>Your Progress</h2>
             <div class="goal">
@@ -402,6 +498,11 @@
                 <p id="rank-score">Total Score: 0</p>
             </div>
 
+            <!-- NEW: Word List Button Section -->
+            <div class="word-list-section">
+                <button id="my-words-btn" disabled>My Word List</button>
+            </div>
+
             <div class="hall-of-fame-section">
                 <h3>Hall of Fame</h3>
                 <ul id="hall-of-fame-list">
@@ -415,7 +516,18 @@
         </div>
     </div>
 
-    <script src="sentences.js"></script>
+    <!-- NEW: Word List Modal -->
+    <div id="word-list-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="modal-close-btn">&times;</button>
+            <h2>My Saved Words</h2>
+            <ul id="saved-words-list">
+                <!-- Words will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cw-apps.s3.amazonaws.com/bangla_sentences.js"></script>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -424,7 +536,7 @@
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // --- Configuration ---
-        const API_KEY = "AIzaSyCND3EhkA3cLclRUmXlvW9LWHqIH91H3Bc";
+        const API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE";
 
         // IMPORTANT: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
         const firebaseConfig = {
@@ -471,6 +583,11 @@
         const userNameEl = document.getElementById('user-name');
         const userPhotoEl = document.getElementById('user-photo');
         const hallOfFameList = document.getElementById('hall-of-fame-list');
+        // NEW DOM elements for word list
+        const myWordsBtn = document.getElementById('my-words-btn');
+        const wordListModal = document.getElementById('word-list-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const savedWordsListEl = document.getElementById('saved-words-list');
 
 
         // --- Firebase Initialization ---
@@ -528,6 +645,11 @@
                         userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
                         needsWrite = true;
                     }
+                    // NEW: Initialize savedWords array if it doesn't exist
+                    if (!userData.savedWords) {
+                        userData.savedWords = [];
+                        needsWrite = true;
+                    }
 
                     if (userData.dailyScoreData.date !== todayStr) {
                         userData.dailyScoreData = { date: todayStr, score: 0 };
@@ -545,7 +667,8 @@
                         totalScore: 0,
                         dailyScoreData: { date: getTodaysDateString(), score: 0 },
                         weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
-                        usedTranslationIndices: []
+                        usedTranslationIndices: [],
+                        savedWords: [] // NEW: initialize for new user
                     };
                     needsWrite = true;
                 }
@@ -648,6 +771,7 @@
                 englishTranslationEl.disabled = false;
                 submitBtn.disabled = false;
                 skipBtn.disabled = false;
+                myWordsBtn.disabled = false; // NEW
                 isInitialLoad = true; // Reset for new login
                 setupFirestoreListener(user.uid);
                 setupHallOfFameListener(); // NEW
@@ -661,6 +785,7 @@
                 englishTranslationEl.disabled = true;
                 submitBtn.disabled = true;
                 skipBtn.disabled = true;
+                myWordsBtn.disabled = true; // NEW
                 bengaliSentenceEl.textContent = "Please log in to start practicing.";
                 hallOfFameList.innerHTML = ''; // NEW
                 resetUI();
@@ -810,7 +935,7 @@
             const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             try {
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
                 const response = await fetchWithRetry(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -869,12 +994,97 @@
             }, 3000);
         }
 
+        // --- NEW: Word Saving and List Logic ---
+        async function handleSaveWord(event) {
+            if (event.type === 'contextmenu') {
+                event.preventDefault();
+            }
+            const selectedWord = window.getSelection().toString().trim().replace(/[.,!?]$/, ''); // Clean up selection
+            
+            if (!selectedWord) return;
+
+            if (!userData.savedWords) {
+                userData.savedWords = [];
+            }
+
+            if (userData.savedWords.includes(selectedWord)) {
+                showTemporaryMessage("Word is already saved.", false);
+                return;
+            }
+
+            userData.savedWords.push(selectedWord);
+            try {
+                await saveDataToFirestore();
+                showTemporaryMessage(`'${selectedWord}' saved!`, true);
+            } catch (error) {
+                console.error("Error saving word:", error);
+                // Rollback if save fails
+                userData.savedWords = userData.savedWords.filter(w => w !== selectedWord);
+                showTemporaryMessage("Could not save word.", false);
+            }
+        }
+
+        function renderSavedWords() {
+            savedWordsListEl.innerHTML = ''; // Clear previous list
+            const words = userData.savedWords || [];
+
+            if (words.length === 0) {
+                savedWordsListEl.innerHTML = '<li>No words saved yet. Double-click a word to save it.</li>';
+                return;
+            }
+
+            words.forEach(word => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${word}</span>
+                    <button class="delete-word-btn" data-word="${word}">&times;</button>
+                `;
+                savedWordsListEl.appendChild(li);
+            });
+        }
+
+        async function handleDeleteWord(event) {
+            if (event.target.classList.contains('delete-word-btn')) {
+                const wordToDelete = event.target.dataset.word;
+                userData.savedWords = (userData.savedWords || []).filter(w => w !== wordToDelete);
+                try {
+                    await saveDataToFirestore();
+                    showTemporaryMessage(`'${wordToDelete}' removed.`, true);
+                    renderSavedWords(); // Re-render the list
+                } catch(error) {
+                     console.error("Error deleting word:", error);
+                     showTemporaryMessage(`Could not remove word.`, false);
+                     // Add it back on failure
+                     userData.savedWords.push(wordToDelete);
+                }
+            }
+        }
+
         // --- Event Listeners & Initial Load ---
         loginBtn.addEventListener('click', signIn);
         logoutBtn.addEventListener('click', signOutUser);
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
         skipBtn.addEventListener('click', displaySentence);
+
+        // MODIFIED Event Listeners for saving English words
+        resultsEl.addEventListener('dblclick', handleSaveWord);
+        resultsEl.addEventListener('contextmenu', handleSaveWord);
+        englishTranslationEl.addEventListener('dblclick', handleSaveWord);
+        englishTranslationEl.addEventListener('contextmenu', handleSaveWord);
+
+        myWordsBtn.addEventListener('click', () => {
+            renderSavedWords();
+            wordListModal.classList.remove('hidden');
+        });
+        modalCloseBtn.addEventListener('click', () => wordListModal.classList.add('hidden'));
+        wordListModal.addEventListener('click', (e) => {
+            if (e.target === wordListModal) { // only close if overlay is clicked
+                wordListModal.classList.add('hidden');
+            }
+        });
+        savedWordsListEl.addEventListener('click', handleDeleteWord);
+
 
         againBtn.addEventListener('click', async () => {
             if (!currentUser || currentSentenceIndex === -1) return;
