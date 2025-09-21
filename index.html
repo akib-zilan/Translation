@@ -332,8 +332,8 @@
             font-size: 0.8rem;
             color: #6e6e73;
         }
-        
-        /* NEW: Word List Button */
+
+        /* NEW: Word List Section Styles */
         .word-list-section {
             text-align: center;
             padding-top: 1.5rem;
@@ -341,94 +341,93 @@
             border-top: 1px solid #e5e5e5;
         }
         #my-words-btn {
-            width: 100%;
             background-color: #8e8e93;
+            width: 100%;
         }
         #my-words-btn:hover:not(:disabled) {
             background-color: #636366;
         }
+        #my-words-btn:not(:disabled) {
+             background-color: #007aff;
+        }
 
-        /* NEW: Modal Styles */
-        .modal-overlay {
+        /* NEW: Word List Modal Styles */
+        #word-list-modal {
+            display: none; /* Hidden by default */
             position: fixed;
-            top: 0;
+            z-index: 1000;
             left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal-overlay:not(.hidden) {
-            opacity: 1;
-            visibility: visible;
         }
         .modal-content {
-            background-color: #fff;
+            background-color: #ffffff;
+            margin: auto;
             padding: 2rem;
             border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
             width: 90%;
             max-width: 500px;
             max-height: 80vh;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
             position: relative;
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
         }
-        .modal-overlay:not(.hidden) .modal-content {
-            transform: scale(1);
+        .modal-close {
+            color: #aaa;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #1d1d1f;
         }
         .modal-content h2 {
+            text-align: center;
             margin-top: 0;
             color: #1d1d1f;
-            text-align: center;
-        }
-        #modal-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            font-size: 2rem;
-            color: #8e8e93;
-            cursor: pointer;
-            padding: 0.5rem;
-            line-height: 1;
         }
         #saved-words-list {
             list-style: none;
             padding: 0;
-            margin-top: 1.5rem;
+            margin: 1rem 0 0 0;
+            overflow-y: auto;
         }
         #saved-words-list li {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.8rem;
+            padding: 0.75rem 0.5rem;
             border-bottom: 1px solid #e5e5e5;
             font-size: 1.1rem;
         }
-         #saved-words-list li:last-child {
+        #saved-words-list li:last-child {
             border-bottom: none;
         }
         .delete-word-btn {
-            background: #ff3b30;
-            color: white;
+            background: none;
             border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            font-size: 1rem;
+            color: #ff3b30;
+            font-size: 1.5rem;
+            font-weight: bold;
             cursor: pointer;
-            padding: 0;
-            line-height: 28px;
-            text-align: center;
+            padding: 0 0.5rem;
+            margin: 0;
+            line-height: 1;
         }
+        .delete-word-btn:hover {
+            color: #c70000;
+        }
+
 
         @media (max-width: 950px) {
             .main-layout {
@@ -498,7 +497,7 @@
                 <p id="rank-score">Total Score: 0</p>
             </div>
 
-            <!-- NEW: Word List Button Section -->
+            <!-- NEW: Word List Section -->
             <div class="word-list-section">
                 <button id="my-words-btn" disabled>My Word List</button>
             </div>
@@ -517,12 +516,12 @@
     </div>
 
     <!-- NEW: Word List Modal -->
-    <div id="word-list-modal" class="modal-overlay hidden">
+    <div id="word-list-modal">
         <div class="modal-content">
-            <button id="modal-close-btn">&times;</button>
+            <span class="modal-close">&times;</span>
             <h2>My Saved Words</h2>
             <ul id="saved-words-list">
-                <!-- Words will be dynamically added here -->
+                <!-- Words will be dynamically inserted here -->
             </ul>
         </div>
     </div>
@@ -583,11 +582,11 @@
         const userNameEl = document.getElementById('user-name');
         const userPhotoEl = document.getElementById('user-photo');
         const hallOfFameList = document.getElementById('hall-of-fame-list');
-        // NEW DOM elements for word list
+        // NEW: Word List DOM Elements
         const myWordsBtn = document.getElementById('my-words-btn');
         const wordListModal = document.getElementById('word-list-modal');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-        const savedWordsListEl = document.getElementById('saved-words-list');
+        const closeModalBtn = document.querySelector('.modal-close');
+        const savedWordsList = document.getElementById('saved-words-list');
 
 
         // --- Firebase Initialization ---
@@ -633,7 +632,7 @@
                         userData.photoURL = currentUser.photoURL;
                         needsWrite = true;
                     }
-                    
+
                     const todayStr = getTodaysDateString();
                     const weekStartStr = getWeekStartDateString();
 
@@ -645,11 +644,6 @@
                         userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
                         needsWrite = true;
                     }
-                    // NEW: Initialize savedWords array if it doesn't exist
-                    if (!userData.savedWords) {
-                        userData.savedWords = [];
-                        needsWrite = true;
-                    }
 
                     if (userData.dailyScoreData.date !== todayStr) {
                         userData.dailyScoreData = { date: todayStr, score: 0 };
@@ -659,6 +653,12 @@
                         userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
                         needsWrite = true;
                     }
+                    // NEW: Ensure savedWords array exists
+                    if (!Array.isArray(userData.savedWords)) {
+                        userData.savedWords = [];
+                        needsWrite = true;
+                    }
+
                 } else {
                     // Set default data for a new user
                     userData = {
@@ -668,7 +668,7 @@
                         dailyScoreData: { date: getTodaysDateString(), score: 0 },
                         weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
                         usedTranslationIndices: [],
-                        savedWords: [] // NEW: initialize for new user
+                        savedWords: [] // NEW: Initialize for new users
                     };
                     needsWrite = true;
                 }
@@ -686,7 +686,7 @@
                 }
             });
         }
-        
+
         // MODIFIED: Hall of Fame Listener
         function setupHallOfFameListener() {
             if (hallOfFameUnsubscribe) {
@@ -722,11 +722,11 @@
                     const userRank = getRank(user.totalScore || 0);
                     const listItem = document.createElement('li');
                     listItem.className = 'hof-user';
-                    
+
                     if (index === 0) listItem.classList.add('hof-user-1');
                     if (index === 1) listItem.classList.add('hof-user-2');
                     if (index === 2) listItem.classList.add('hof-user-3');
-                    
+
                     listItem.innerHTML = `
                         <img src="${user.photoURL || 'https://placehold.co/40x40/EFEFEF/AAAAAA?text=?'}" alt="${user.displayName || 'User'}">
                         <div class="hof-user-info">
@@ -771,7 +771,7 @@
                 englishTranslationEl.disabled = false;
                 submitBtn.disabled = false;
                 skipBtn.disabled = false;
-                myWordsBtn.disabled = false; // NEW
+                myWordsBtn.disabled = false; // NEW: Enable button
                 isInitialLoad = true; // Reset for new login
                 setupFirestoreListener(user.uid);
                 setupHallOfFameListener(); // NEW
@@ -779,13 +779,13 @@
                 // User is signed out
                 if (firestoreUnsubscribe) firestoreUnsubscribe();
                 if (hallOfFameUnsubscribe) hallOfFameUnsubscribe(); // NEW
-                
+
                 loginBtn.classList.remove('hidden');
                 userInfo.classList.add('hidden');
                 englishTranslationEl.disabled = true;
                 submitBtn.disabled = true;
                 skipBtn.disabled = true;
-                myWordsBtn.disabled = true; // NEW
+                myWordsBtn.disabled = true; // NEW: Disable button
                 bengaliSentenceEl.textContent = "Please log in to start practicing.";
                 hallOfFameList.innerHTML = ''; // NEW
                 resetUI();
@@ -803,7 +803,7 @@
             updateProgressBars();
             updateWeeklyDayCount();
         }
-        
+
         function updateWeeklyDayCount() {
             const now = new Date();
             let dayOfWeek = now.getDay(); // Sunday is 0, Monday is 1, etc.
@@ -850,6 +850,57 @@
                 errorAnalysisSection.classList.add('hidden');
             }
         }
+        
+        // --- NEW: Word Saving Feature ---
+        function handleSaveWord(event) {
+            if (!currentUser) return;
+            event.preventDefault();
+
+            const selection = window.getSelection();
+            if (!selection || selection.isCollapsed) return;
+            
+            // Clean the selected text
+            const word = selection.toString().trim().replace(/[.,?!;:]$/, '').toLowerCase();
+
+            if (word && word.length > 1) { // Check if word is valid
+                if (!userData.savedWords.includes(word)) {
+                    userData.savedWords.push(word);
+                    userData.savedWords.sort(); // Keep the list sorted
+                    saveDataToFirestore();
+                    showTemporaryMessage(`'${word}' saved!`, true);
+                } else {
+                    showTemporaryMessage(`'${word}' is already in your list.`);
+                }
+            }
+            window.getSelection().removeAllRanges(); // Deselect text
+        }
+
+        function renderSavedWords() {
+            savedWordsList.innerHTML = '';
+            const words = userData.savedWords || [];
+            if (words.length === 0) {
+                savedWordsList.innerHTML = '<li>No words saved yet. Double-click or right-click a word to save it.</li>';
+                return;
+            }
+            words.forEach(word => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${word}</span>
+                    <button class="delete-word-btn" data-word="${word}">&times;</button>
+                `;
+                savedWordsList.appendChild(li);
+            });
+        }
+        
+        function handleDeleteWord(event) {
+            if (event.target.classList.contains('delete-word-btn')) {
+                const wordToDelete = event.target.dataset.word;
+                userData.savedWords = userData.savedWords.filter(w => w !== wordToDelete);
+                saveDataToFirestore();
+                renderSavedWords(); // Re-render the list
+            }
+        }
+
 
         // --- Core Application Logic ---
         function getRank(score) {
@@ -935,7 +986,7 @@
             const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             try {
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
                 const response = await fetchWithRetry(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -985,79 +1036,13 @@
         function showTemporaryMessage(message, isSuccess = false) {
             const messageBox = document.createElement('div');
             messageBox.textContent = message;
-            Object.assign(messageBox.style, { position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', backgroundColor: isSuccess ? '#34c759' : '#ff4d4d', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: '1000', opacity: '0', transition: 'opacity 0.5s' });
+            Object.assign(messageBox.style, { position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', backgroundColor: isSuccess ? '#34c759' : '#ff4d4d', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: '1001', opacity: '0', transition: 'opacity 0.5s', textAlign: 'center' });
             document.body.appendChild(messageBox);
             setTimeout(() => { messageBox.style.opacity = '1'; }, 10);
             setTimeout(() => {
                 messageBox.style.opacity = '0';
                 setTimeout(() => { document.body.removeChild(messageBox); }, 500);
             }, 3000);
-        }
-
-        // --- NEW: Word Saving and List Logic ---
-        async function handleSaveWord(event) {
-            if (event.type === 'contextmenu') {
-                event.preventDefault();
-            }
-            const selectedWord = window.getSelection().toString().trim().replace(/[.,!?]$/, ''); // Clean up selection
-            
-            if (!selectedWord) return;
-
-            if (!userData.savedWords) {
-                userData.savedWords = [];
-            }
-
-            if (userData.savedWords.includes(selectedWord)) {
-                showTemporaryMessage("Word is already saved.", false);
-                return;
-            }
-
-            userData.savedWords.push(selectedWord);
-            try {
-                await saveDataToFirestore();
-                showTemporaryMessage(`'${selectedWord}' saved!`, true);
-            } catch (error) {
-                console.error("Error saving word:", error);
-                // Rollback if save fails
-                userData.savedWords = userData.savedWords.filter(w => w !== selectedWord);
-                showTemporaryMessage("Could not save word.", false);
-            }
-        }
-
-        function renderSavedWords() {
-            savedWordsListEl.innerHTML = ''; // Clear previous list
-            const words = userData.savedWords || [];
-
-            if (words.length === 0) {
-                savedWordsListEl.innerHTML = '<li>No words saved yet. Double-click a word to save it.</li>';
-                return;
-            }
-
-            words.forEach(word => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${word}</span>
-                    <button class="delete-word-btn" data-word="${word}">&times;</button>
-                `;
-                savedWordsListEl.appendChild(li);
-            });
-        }
-
-        async function handleDeleteWord(event) {
-            if (event.target.classList.contains('delete-word-btn')) {
-                const wordToDelete = event.target.dataset.word;
-                userData.savedWords = (userData.savedWords || []).filter(w => w !== wordToDelete);
-                try {
-                    await saveDataToFirestore();
-                    showTemporaryMessage(`'${wordToDelete}' removed.`, true);
-                    renderSavedWords(); // Re-render the list
-                } catch(error) {
-                     console.error("Error deleting word:", error);
-                     showTemporaryMessage(`Could not remove word.`, false);
-                     // Add it back on failure
-                     userData.savedWords.push(wordToDelete);
-                }
-            }
         }
 
         // --- Event Listeners & Initial Load ---
@@ -1067,23 +1052,26 @@
         nextBtn.addEventListener('click', displaySentence);
         skipBtn.addEventListener('click', displaySentence);
 
-        // MODIFIED Event Listeners for saving English words
-        resultsEl.addEventListener('dblclick', handleSaveWord);
-        resultsEl.addEventListener('contextmenu', handleSaveWord);
+        // NEW: Word Saving Event Listeners
         englishTranslationEl.addEventListener('dblclick', handleSaveWord);
         englishTranslationEl.addEventListener('contextmenu', handleSaveWord);
-
+        resultsEl.addEventListener('dblclick', handleSaveWord);
+        resultsEl.addEventListener('contextmenu', handleSaveWord);
+        
+        // NEW: Modal Event Listeners
         myWordsBtn.addEventListener('click', () => {
             renderSavedWords();
-            wordListModal.classList.remove('hidden');
+            wordListModal.style.display = 'flex';
         });
-        modalCloseBtn.addEventListener('click', () => wordListModal.classList.add('hidden'));
-        wordListModal.addEventListener('click', (e) => {
-            if (e.target === wordListModal) { // only close if overlay is clicked
-                wordListModal.classList.add('hidden');
+        closeModalBtn.addEventListener('click', () => {
+            wordListModal.style.display = 'none';
+        });
+        wordListModal.addEventListener('click', (event) => {
+            if (event.target === wordListModal) { // Close only if overlay is clicked
+                wordListModal.style.display = 'none';
             }
         });
-        savedWordsListEl.addEventListener('click', handleDeleteWord);
+        savedWordsList.addEventListener('click', handleDeleteWord);
 
 
         againBtn.addEventListener('click', async () => {
@@ -1092,7 +1080,7 @@
             if (!userData.usedTranslationIndices) {
                 userData.usedTranslationIndices = [];
             }
-            
+
             const initialLength = userData.usedTranslationIndices.length;
             userData.usedTranslationIndices = userData.usedTranslationIndices.filter(index => index !== currentSentenceIndex);
 
@@ -1111,11 +1099,8 @@
                  againBtn.disabled = true;
             }
         });
-        
+
         resetUI(); // Start with a clean slate before login
     </script>
 </body>
 </html>
-
-
-
