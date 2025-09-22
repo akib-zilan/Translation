@@ -107,6 +107,13 @@
         #skip-btn:hover:not(:disabled) {
             background-color: #636366;
         }
+        /* NEW: Styles for the delete button */
+        #delete-sentence-btn {
+            background-color: #ff3b30;
+        }
+        #delete-sentence-btn:hover:not(:disabled) {
+            background-color: #c70000;
+        }
         #results {
             margin-top: 2rem;
             text-align: left;
@@ -452,6 +459,7 @@
                 <button id="again-btn" class="hidden">Try Again</button>
                 <button id="next-btn" class="hidden">Next</button>
                 <button id="skip-btn" disabled>Skip</button>
+                <button id="delete-sentence-btn" class="hidden">Delete</button>
             </div>
             <div id="spinner" class="hidden"></div>
             <div id="results" class="hidden">
@@ -561,6 +569,7 @@
         const nextBtn = document.getElementById('next-btn');
         const againBtn = document.getElementById('again-btn'); // NEW
         const skipBtn = document.getElementById('skip-btn');
+        const deleteSentenceBtn = document.getElementById('delete-sentence-btn'); // NEW
         const resultsEl = document.getElementById('results');
         const scoreEl = document.getElementById('score');
         const evaluationEl = document.getElementById('evaluation');
@@ -658,6 +667,11 @@
                         userData.savedWords = [];
                         needsWrite = true;
                     }
+                    // NEW: Ensure deletedSentenceIndices array exists
+                    if (!Array.isArray(userData.deletedSentenceIndices)) {
+                        userData.deletedSentenceIndices = [];
+                        needsWrite = true;
+                    }
 
                 } else {
                     // Set default data for a new user
@@ -668,7 +682,8 @@
                         dailyScoreData: { date: getTodaysDateString(), score: 0 },
                         weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
                         usedTranslationIndices: [],
-                        savedWords: [] // NEW: Initialize for new users
+                        savedWords: [], // NEW: Initialize for new users
+                        deletedSentenceIndices: [] // NEW: Initialize for new users
                     };
                     needsWrite = true;
                 }
@@ -913,12 +928,21 @@
 
         function getNewSentence() {
             let usedIndices = userData.usedTranslationIndices || [];
-            const availableIndices = sentences.map((_, i) => i).filter(i => !usedIndices.includes(i));
+            let deletedIndices = userData.deletedSentenceIndices || [];
+            
+            let availableIndices = sentences.map((_, i) => i).filter(i => !usedIndices.includes(i) && !deletedIndices.includes(i));
 
             if (availableIndices.length === 0) {
-                showTemporaryMessage("You've completed all sentences! Starting over. Great job!", true);
+                showTemporaryMessage("You've completed all available sentences! Resetting your progress. Great job!", true);
                 userData.usedTranslationIndices = [];
-                return getNewSentence();
+                saveDataToFirestore(); 
+                
+                usedIndices = [];
+                availableIndices = sentences.map((_, i) => i).filter(i => !deletedIndices.includes(i));
+                
+                if (availableIndices.length === 0) {
+                    return null; 
+                }
             }
 
             const newSentenceIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
@@ -930,11 +954,28 @@
         function displaySentence() {
             if (!currentUser) return;
             currentSentence = getNewSentence();
+
+            if (!currentSentence) {
+                bengaliSentenceEl.textContent = "You have practiced or deleted all available sentences.";
+                englishTranslationEl.value = '';
+                englishTranslationEl.disabled = true;
+                submitBtn.classList.remove('hidden');
+                submitBtn.disabled = true;
+                skipBtn.classList.remove('hidden');
+                skipBtn.disabled = true;
+                nextBtn.classList.add('hidden');
+                againBtn.classList.add('hidden');
+                deleteSentenceBtn.classList.add('hidden');
+                errorAnalysisSection.classList.add('hidden');
+                return;
+            }
+
             bengaliSentenceEl.textContent = currentSentence.Bengali;
             englishTranslationEl.value = '';
             resultsEl.classList.add('hidden');
             nextBtn.classList.add('hidden');
             againBtn.classList.add('hidden');
+            deleteSentenceBtn.classList.add('hidden');
             againBtn.disabled = false;
             submitBtn.classList.remove('hidden');
             submitBtn.disabled = false;
@@ -1030,8 +1071,32 @@
                 skipBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
                 againBtn.classList.remove('hidden');
+                deleteSentenceBtn.classList.remove('hidden');
             }
         }
+
+        async function handleDeleteSentence() {
+            if (!currentUser || currentSentenceIndex === -1) return;
+
+            deleteSentenceBtn.disabled = true; 
+
+            if (!userData.deletedSentenceIndices.includes(currentSentenceIndex)) {
+                userData.deletedSentenceIndices.push(currentSentenceIndex);
+            }
+            userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter(index => index !== currentSentenceIndex);
+
+            try {
+                await saveDataToFirestore();
+                showTemporaryMessage("Sentence permanently removed.", true);
+                displaySentence();
+            } catch (error) {
+                console.error("Failed to delete sentence:", error);
+                userData.deletedSentenceIndices = userData.deletedSentenceIndices.filter(index => index !== currentSentenceIndex);
+                showTemporaryMessage("Could not remove sentence. Please try again.");
+                deleteSentenceBtn.disabled = false;
+            }
+        }
+
 
         function showTemporaryMessage(message, isSuccess = false) {
             const messageBox = document.createElement('div');
@@ -1051,6 +1116,8 @@
         submitBtn.addEventListener('click', getEvaluation);
         nextBtn.addEventListener('click', displaySentence);
         skipBtn.addEventListener('click', displaySentence);
+        deleteSentenceBtn.addEventListener('click', handleDeleteSentence);
+
 
         // NEW: Word Saving Event Listeners
         englishTranslationEl.addEventListener('dblclick', handleSaveWord);
