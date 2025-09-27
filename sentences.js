@@ -241,7 +241,7 @@ const sentences = [
     {"Bengali":"তারপরও পাকিস্তানের শাসকগোষ্ঠী মনে করে, ভারতের দিক থেকে তাদের জন্য বিশ্বাসযোগ্য নিরাপত্তা হুমকি আছে।","English":"Nevertheless, the Pakistani ruling elite believes there is a credible security threat to them from India."},
     {"Bengali":"ইয়েমেনের বিরুদ্ধে দীর্ঘ যুদ্ধে পাকিস্তানসহ অনেক শক্তির সহযোগিতা সত্ত্বেও সৌদিরা সিদ্ধান্তসূচক জয় পায়নি।","English":"Despite the cooperation of many powers, including Pakistan, the Saudis failed to achieve a decisive victory in the protracted war against Yemen."},
     {"Bengali":"ভারত তার প্রতিরক্ষা বাজেট ৭৯ বিলিয়ন ডলার করেও বহু বছর ধরে যে প্রধানতম ‘অভ্যন্তরীণ নিরাপত্তা হুমকি’ মাওবাদ দমন করতে পারছে না, তারও কারণ প্রতিরক্ষা চিন্তার ভুল নির্দেশনা।","English":"Even with its defense budget of 79 billion dollars, India has been unable to suppress Maoism, its primary 'internal security threat', for many years, which is also due to misguided defense thinking."},
-    {"Bengali":"এ রকম সমস্যার সমাধান না করে কেবল জল-স্থল-আকাশসীমা সামলিয়ে এসব দেশকে আগামী দিনে কি সুরক্ষিত রাখা যাবে?","English":"Without resolving such problems, will these countries remain secure in the future merely by managing their land, sea, and air borders?"}
+    {"Bengali":"এ রকম সমস্যার সমাধান না করে কেবল জল-স্থল-আকাশসীমা সামলিয়ে এসব দেশকে আগামী দিনে কি সুরক্ষিত রাখা যাবে?","English":"Without resolving such problems, will these countries remain secure in the future merely by managing their land, sea, and air borders?"},
     {"Bengali":"গত প্রায় দেড় বছর ধরে দেশের মূল্যস্ফীতি ৯ শতাংশের বেশি রয়েছে, যদিও সরকারি হিসাবে বলা হয় এটি কিছুটা কমেছে।","English":"For the last almost one and a half years, the country's inflation has been above 9 percent, although government figures suggest it has decreased slightly."},
     {"Bengali":"গত প্রায় দেড় বছর ধরে দেশের মূল্যস্ফীতি ৯ শতাংশের বেশি রয়েছে, যদিও সরকারি হিসাবে বলা হয় এটি কিছুটা কমেছে।","English":"For the last almost one and a half years, the country's inflation has been above 9 percent, although government figures suggest it has decreased slightly."},
 {"Bengali":"অর্থনীতিবিদরা বলছেন, আন্তর্জাতিক বাজারে পণ্যের দাম কমলেও দেশে তার ইতিবাচক প্রভাব দেখা যাচ্ছে না, কারণ সিন্ডিকেটের কারসাজি ও ডলারের মূল্য বৃদ্ধি।","English":"Economists say that even though product prices have decreased in the international market, their positive impact is not seen in the country, because of syndicate manipulation and the increase in dollar value."},
@@ -377,6 +377,7 @@ const sentences = [
 {"Bengali":"সচেতনতার অভাব এবং আমলাতান্ত্রিক জটিলতার কারণে অনেক দরিদ্র মানুষ এই সুযোগ সম্পর্কে জানেও না, অথবা জানলেও প্রক্রিয়াটি তাদের কাছে অত্যন্ত কঠিন মনে হয়।","English":"Due to a lack of awareness and bureaucratic complexities, many poor people are unaware of this opportunity, or even if they know, the process seems extremely difficult to them."},
 {"Bengali":"ন্যায়বিচার নিশ্চিত করার জন্য শুধু আইন প্রণয়নই যথেষ্ট নয়, বরং এর সঠিক প্রয়োগ এবং দরিদ্রদের জন্য প্রবেশগম্যতা নিশ্চিত করাও সমান গুরুত্বপূর্ণ।","English":"To ensure justice, merely enacting laws is not enough; rather, their proper implementation and ensuring accessibility for the poor are equally important."}
 ];
+
 
 
 
