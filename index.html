@@ -690,7 +690,10 @@
 
                 if (needsWrite) {
                     setDoc(docRef, userData, { merge: true });
-                    return;
+                    // FIX: The 'return' statement was removed from here.
+                    // Previously, the function would exit here if data needed to be written,
+                    // preventing the sentence from being displayed on the first load for a new user.
+                    // Now, it writes the data and continues to update the UI immediately.
                 }
 
                 updateAllUI();
