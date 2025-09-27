@@ -375,8 +375,9 @@ const sentences = [
 {"Bengali":"অনেক ক্ষেত্রে, পুলিশ বা আইনজীবীদের কাছে যেতেও দরিদ্রদের নানা রকম বাধার সম্মুখীন হতে হয়, কারণ তাদের আর্থ-সামাজিক অবস্থান তাদের জন্য প্রতিবন্ধকতা সৃষ্টি করে।","English":"In many cases, the poor face various obstacles even in approaching the police or lawyers, because their socio-economic status creates barriers for them."},
 {"Bengali":"যদিও সরকার দরিদ্রদের জন্য বিনামূল্যে আইনি সহায়তা প্রদানের উদ্যোগ নিয়েছে, তবুও এর বাস্তবায়ন এবং কার্যকারিতা নিয়ে প্রশ্ন থেকে যায়।","English":"Although the government has taken initiatives to provide free legal aid to the poor, questions still remain regarding its implementation and effectiveness."},
 {"Bengali":"সচেতনতার অভাব এবং আমলাতান্ত্রিক জটিলতার কারণে অনেক দরিদ্র মানুষ এই সুযোগ সম্পর্কে জানেও না, অথবা জানলেও প্রক্রিয়াটি তাদের কাছে অত্যন্ত কঠিন মনে হয়।","English":"Due to a lack of awareness and bureaucratic complexities, many poor people are unaware of this opportunity, or even if they know, the process seems extremely difficult to them."},
-{"Bengali":"ন্যায়বিচার নিশ্চিত করার জন্য শুধু আইন প্রণয়নই যথেষ্ট নয়, বরং এর সঠিক প্রয়োগ এবং দরিদ্রদের জন্য প্রবেশগম্যতা নিশ্চিত করাও সমান গুরুত্বপূর্ণ।","English":"To ensure justice, merely enacting laws is not enough; rather, their proper implementation and ensuring accessibility for the poor are equally important."},
+{"Bengali":"ন্যায়বিচার নিশ্চিত করার জন্য শুধু আইন প্রণয়নই যথেষ্ট নয়, বরং এর সঠিক প্রয়োগ এবং দরিদ্রদের জন্য প্রবেশগম্যতা নিশ্চিত করাও সমান গুরুত্বপূর্ণ।","English":"To ensure justice, merely enacting laws is not enough; rather, their proper implementation and ensuring accessibility for the poor are equally important."}
 ];
+
 
 
 
