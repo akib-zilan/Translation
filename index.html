@@ -1025,6 +1025,9 @@
             const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             let evaluationSucceeded = false;
+            // Stop a stalled AI request so the loading spinner cannot run forever.
+            const requestAbortController = new AbortController();
+            const evaluationTimeoutId = setTimeout(() => requestAbortController.abort(), 45000);
             try {
                 const firebaseIdToken = await currentUser.getIdToken();
                 const response = await fetchWithRetry(AI_PROXY_URL, {
@@ -1033,7 +1036,8 @@
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${firebaseIdToken}`
                     },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt }),
+                    signal: requestAbortController.signal
                 });
                 const responseData = await response.json();
                 if (typeof responseData.text !== "string" || !responseData.text.trim()) {
@@ -1065,17 +1069,43 @@
                     userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
                     userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
                 }
-                await saveDataToFirestore();
 
+                // Show the assessment before attempting to save progress. A slow Firestore
+                // write must not prevent the learner from seeing the result.
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
                 evaluationEl.textContent = String(jsonResponse.evaluation || "No feedback was provided.");
                 correctionEl.textContent = String(jsonResponse.correction || currentSentence.English || "No correction was provided.");
                 resultsEl.classList.remove("hidden");
                 evaluationSucceeded = true;
+
+                // Limit how long the UI waits for Firestore; report save trouble separately.
+                let saveTimeoutId;
+                const saveResult = await Promise.race([
+                    saveDataToFirestore().then(
+                        () => ({ status: "saved" }),
+                        (error) => ({ status: "error", error })
+                    ),
+                    new Promise((resolve) => {
+                        saveTimeoutId = setTimeout(() => resolve({ status: "timeout" }), 8000);
+                    })
+                ]);
+                clearTimeout(saveTimeoutId);
+
+                if (saveResult.status === "error") {
+                    console.error("Assessment displayed, but progress could not be saved:", saveResult.error);
+                    showTemporaryMessage("Assessment complete, but progress could not be saved. Check your connection.");
+                } else if (saveResult.status === "timeout") {
+                    showTemporaryMessage("Assessment complete. Saving progress is taking longer than expected.");
+                }
             } catch (error) {
                 console.error("Fetch or parsing error:", error);
-                showTemporaryMessage(`An error occurred: ${error.message || "Please try again."}`);
+                if (requestAbortController.signal.aborted) {
+                    showTemporaryMessage("The AI service took too long to respond. Please try again.");
+                } else {
+                    showTemporaryMessage(`An error occurred: ${error.message || "Please try again."}`);
+                }
             } finally {
+                clearTimeout(evaluationTimeoutId);
                 spinner.classList.add("hidden");
                 submitBtn.classList.add("hidden");
                 skipBtn.classList.add("hidden");
