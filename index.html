@@ -64,9 +64,7 @@
             border-color: #007aff;
             box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
         }
-        .buttons {
-            margin-top: 1.5rem;
-        }
+        .buttons { margin-top: 1.5rem; }
         button {
             padding: 0.8rem 1.6rem;
             font-size: 1rem;
@@ -79,41 +77,20 @@
             margin: 0.5rem;
             transition: background-color 0.2s ease;
         }
-        button:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-        button:disabled {
-            background-color: #d2d2d7;
-            cursor: not-allowed;
-        }
-        #next-btn {
-            background-color: #34c759;
-        }
-        #next-btn:hover:not(:disabled) {
-            background-color: #2ca349;
-        }
-        /* NEW: Styles for the Again button */
+        button:hover:not(:disabled) { background-color: #0056b3; }
+        button:disabled { background-color: #d2d2d7; cursor: not-allowed; }
+        #next-btn { background-color: #34c759; }
+        #next-btn:hover:not(:disabled) { background-color: #2ca349; }
         #again-btn {
             background-color: transparent;
             color: #007aff;
             border: 1px solid #007aff;
         }
-        #again-btn:hover:not(:disabled) {
-            background-color: rgba(0, 122, 255, 0.1);
-        }
-        #skip-btn {
-            background-color: #8e8e93;
-        }
-        #skip-btn:hover:not(:disabled) {
-            background-color: #636366;
-        }
-        /* NEW: Styles for the delete button */
-        #delete-sentence-btn {
-            background-color: #ff3b30;
-        }
-        #delete-sentence-btn:hover:not(:disabled) {
-            background-color: #c70000;
-        }
+        #again-btn:hover:not(:disabled) { background-color: rgba(0, 122, 255, 0.1); }
+        #skip-btn { background-color: #8e8e93; }
+        #skip-btn:hover:not(:disabled) { background-color: #636366; }
+        #delete-sentence-btn { background-color: #ff3b30; }
+        #delete-sentence-btn:hover:not(:disabled) { background-color: #c70000; }
         #results {
             margin-top: 2rem;
             text-align: left;
@@ -121,18 +98,9 @@
             background-color: #f5f5f7;
             border-radius: 8px;
         }
-        .hidden {
-            display: none;
-        }
-        #score {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #1d1d1f;
-        }
-        #evaluation, #correction {
-            margin-top: 0.75rem;
-            line-height: 1.5;
-        }
+        .hidden { display: none !important; }
+        #score { font-size: 1.4rem; font-weight: bold; color: #1d1d1f; }
+        #evaluation, #correction { margin-top: 0.75rem; line-height: 1.5; }
         #spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-left-color: #007aff;
@@ -142,10 +110,7 @@
             animation: spin 1s linear infinite;
             margin: 1.5rem auto 0;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
+        @keyframes spin { to { transform: rotate(360deg); } }
         .goals-container {
             width: 100%;
             max-width: 300px;
@@ -162,7 +127,6 @@
             margin-bottom: 1rem;
             text-align: center;
         }
-        /* NEW: Authentication Styles */
         #auth-container {
             text-align: center;
             margin-bottom: 1.5rem;
@@ -173,30 +137,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 10px;
         }
-        #user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        #user-info span {
-            font-weight: 500;
-        }
-        #logout-btn {
-            background-color: #ff3b30;
-            margin-left: 10px;
-        }
-        #login-btn {
-            background-color: #34c759;
-        }
-
-        .goal {
-            margin-bottom: 1.5rem;
-        }
+        #user-info img { width: 40px; height: 40px; border-radius: 50%; }
+        #user-info span { font-weight: 500; }
+        #logout-btn { background-color: #ff3b30; margin-left: 10px; }
+        #login-btn { background-color: #34c759; }
+        .goal { margin-bottom: 1.5rem; }
         .goal-header {
             display: flex;
             justify-content: space-between;
+            gap: 0.5rem;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
             font-weight: 500;
@@ -229,19 +181,8 @@
             margin-bottom: 0.5rem;
             font-weight: 600;
         }
-        #rank-name {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #007aff;
-            margin: 0.5rem 0;
-        }
-        #rank-score {
-            font-size: 1rem;
-            color: #6e6e73;
-            margin-top: 0.5rem;
-        }
-
-        /* MODIFIED: Styles for Current Error Display */
+        #rank-name { font-size: 1.8rem; font-weight: bold; color: #007aff; margin: 0.5rem 0; }
+        #rank-score { font-size: 1rem; color: #6e6e73; margin-top: 0.5rem; }
         .error-analysis-section {
             padding-top: 1.5rem;
             margin-top: 1.5rem;
@@ -255,12 +196,7 @@
             font-weight: 600;
             text-align: center;
         }
-        #current-errors-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
+        #current-errors-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
         .error-tag {
             background-color: #ff3b30;
             color: white;
@@ -269,8 +205,6 @@
             font-size: 0.85rem;
             font-weight: 500;
         }
-
-        /* MODIFIED: Hall of Fame Styles */
         .hall-of-fame-section {
             text-align: center;
             padding: 1.5rem;
@@ -302,65 +236,21 @@
             border-radius: 8px;
             margin-bottom: 5px;
         }
-        .hof-user:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        .hof-user:hover {
-            background-color: #f5f5f7;
-        }
-        .hof-user-1 {
-            background-color: #fffbeb;
-            border-left: 4px solid #facc15;
-        }
-        .hof-user-2 {
-            background-color: #f8fafc;
-            border-left: 4px solid #d1d5db;
-        }
-        .hof-user-3 {
-            background-color: #fdf8f6;
-            border-left: 4px solid #f97316;
-        }
-        .hof-user img {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        .hof-user-info {
-            flex-grow: 1;
-        }
-        .hof-user-name {
-            font-weight: 600;
-            color: #1d1d1f;
-            font-size: 0.95rem;
-        }
-        .hof-user-details {
-            font-size: 0.8rem;
-            color: #6e6e73;
-        }
-
-        /* NEW: Word List Section Styles */
-        .word-list-section {
-            text-align: center;
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid #e5e5e5;
-        }
-        #my-words-btn {
-            background-color: #8e8e93;
-            width: 100%;
-        }
-        #my-words-btn:hover:not(:disabled) {
-            background-color: #636366;
-        }
-        #my-words-btn:not(:disabled) {
-             background-color: #007aff;
-        }
-
-        /* NEW: Word List Modal Styles */
+        .hof-user:last-child { border-bottom: none; margin-bottom: 0; }
+        .hof-user:hover { background-color: #f5f5f7; }
+        .hof-user-1 { background-color: #fffbeb; border-left: 4px solid #facc15; }
+        .hof-user-2 { background-color: #f8fafc; border-left: 4px solid #d1d5db; }
+        .hof-user-3 { background-color: #fdf8f6; border-left: 4px solid #f97316; }
+        .hof-user img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+        .hof-user-info { flex-grow: 1; min-width: 0; }
+        .hof-user-name { font-weight: 600; color: #1d1d1f; font-size: 0.95rem; overflow-wrap: anywhere; }
+        .hof-user-details { font-size: 0.8rem; color: #6e6e73; }
+        .word-list-section { text-align: center; padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid #e5e5e5; }
+        #my-words-btn { background-color: #8e8e93; width: 100%; }
+        #my-words-btn:hover:not(:disabled) { background-color: #636366; }
+        #my-words-btn:not(:disabled) { background-color: #007aff; }
         #word-list-modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -384,73 +274,28 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            box-sizing: border-box;
         }
-        .modal-close {
-            color: #aaa;
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .modal-close:hover,
-        .modal-close:focus {
-            color: #1d1d1f;
-        }
-        .modal-content h2 {
-            text-align: center;
-            margin-top: 0;
-            color: #1d1d1f;
-        }
-        #saved-words-list {
-            list-style: none;
-            padding: 0;
-            margin: 1rem 0 0 0;
-            overflow-y: auto;
-        }
-        #saved-words-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0.5rem;
-            border-bottom: 1px solid #e5e5e5;
-            font-size: 1.1rem;
-        }
-        #saved-words-list li:last-child {
-            border-bottom: none;
-        }
-        .delete-word-btn {
-            background: none;
-            border: none;
-            color: #ff3b30;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0 0.5rem;
-            margin: 0;
-            line-height: 1;
-        }
-        .delete-word-btn:hover {
-            color: #c70000;
-        }
-
-
+        .modal-close { color: #aaa; position: absolute; top: 1rem; right: 1.5rem; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-close:hover, .modal-close:focus { color: #1d1d1f; }
+        .modal-content h2 { text-align: center; margin-top: 0; color: #1d1d1f; }
+        #saved-words-list { list-style: none; padding: 0; margin: 1rem 0 0 0; overflow-y: auto; }
+        #saved-words-list li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.75rem 0.5rem; border-bottom: 1px solid #e5e5e5; font-size: 1.1rem; overflow-wrap: anywhere; }
+        #saved-words-list li:last-child { border-bottom: none; }
+        .delete-word-btn { background: none; border: none; color: #ff3b30; font-size: 1.5rem; font-weight: bold; cursor: pointer; padding: 0 0.5rem; margin: 0; line-height: 1; }
+        .delete-word-btn:hover { color: #c70000; }
         @media (max-width: 950px) {
-            .main-layout {
-                flex-direction: column;
-                align-items: center;
-            }
-            .goals-container {
-                max-width: 650px;
-                margin-top: 2rem;
-            }
+            body { align-items: flex-start; }
+            .main-layout { flex-direction: column; align-items: center; padding: 0; }
+            .container { width: 100%; box-sizing: border-box; padding: 1.25rem; }
+            .goals-container { max-width: 650px; margin-top: 0; box-sizing: border-box; }
+            #bengali-sentence { font-size: 1.35rem; padding: 1rem; }
         }
     </style>
 </head>
 <body>
     <div class="main-layout">
-        <div class="container">
+        <main class="container">
             <h1>Translate the Sentence</h1>
             <div id="bengali-sentence">Please log in to start practicing.</div>
             <textarea id="english-translation" placeholder="Type your English translation here..." disabled></textarea>
@@ -461,23 +306,23 @@
                 <button id="skip-btn" disabled>Skip</button>
                 <button id="delete-sentence-btn" class="hidden">Delete</button>
             </div>
-            <div id="spinner" class="hidden"></div>
+            <div id="spinner" class="hidden" aria-label="Loading"></div>
             <div id="results" class="hidden">
                 <p id="score"></p>
                 <p><strong>Feedback:</strong> <span id="evaluation"></span></p>
                 <p><strong>Suggested Correction:</strong> <span id="correction"></span></p>
             </div>
-        </div>
+        </main>
 
-        <div class="goals-container">
-             <div id="auth-container">
-                  <button id="login-btn">Sign in with Google</button>
-                  <div id="user-info" class="hidden">
-                        <img id="user-photo" src="" alt="User photo">
-                        <span id="user-name"></span>
-                        <button id="logout-btn">Logout</button>
-                  </div>
-             </div>
+        <aside class="goals-container">
+            <div id="auth-container">
+                <button id="login-btn">Sign in with Google</button>
+                <div id="user-info" class="hidden">
+                    <img id="user-photo" src="" alt="User photo">
+                    <span id="user-name"></span>
+                    <button id="logout-btn">Logout</button>
+                </div>
+            </div>
 
             <h2>Your Progress</h2>
             <div class="goal">
@@ -485,509 +330,600 @@
                     <span>Daily Goal</span>
                     <span id="daily-progress-text">0 / 100</span>
                 </div>
-                <div class="progress-bar-container">
-                    <div id="daily-progress-bar" class="progress-bar"></div>
-                </div>
+                <div class="progress-bar-container"><div id="daily-progress-bar" class="progress-bar"></div></div>
             </div>
             <div class="goal">
                 <div class="goal-header">
                     <span id="weekly-goal-label">Weekly Goal</span>
                     <span id="weekly-progress-text">0 / 1000</span>
                 </div>
-                <div class="progress-bar-container">
-                    <div id="weekly-progress-bar" class="progress-bar"></div>
-                </div>
+                <div class="progress-bar-container"><div id="weekly-progress-bar" class="progress-bar"></div></div>
             </div>
 
             <div class="rank-section">
                 <h3>Your Rank</h3>
-                <p id="rank-name">Second Lieutenant</p>
+                <p id="rank-name">🔰 Second Lieutenant</p>
                 <p id="rank-score">Total Score: 0</p>
             </div>
 
-            <!-- NEW: Word List Section -->
-            <div class="word-list-section">
-                <button id="my-words-btn" disabled>My Word List</button>
-            </div>
+            <div class="word-list-section"><button id="my-words-btn" disabled>My Word List</button></div>
 
             <div class="hall-of-fame-section">
                 <h3>Hall of Fame</h3>
-                <ul id="hall-of-fame-list">
-                    </ul>
+                <ul id="hall-of-fame-list"><li style="text-align:center;color:#6e6e73;padding:1rem 0;">Sign in to view the Hall of Fame.</li></ul>
             </div>
 
             <div class="error-analysis-section hidden">
                 <h3>Errors in this Translation</h3>
                 <div id="current-errors-container"></div>
             </div>
-        </div>
+        </aside>
     </div>
 
-    <!-- NEW: Word List Modal -->
-    <div id="word-list-modal">
+    <div id="word-list-modal" role="dialog" aria-modal="true" aria-labelledby="saved-words-heading">
         <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2>My Saved Words</h2>
-            <ul id="saved-words-list">
-                <!-- Words will be dynamically inserted here -->
-            </ul>
+            <span class="modal-close" role="button" tabindex="0" aria-label="Close saved words">&times;</span>
+            <h2 id="saved-words-heading">My Saved Words</h2>
+            <ul id="saved-words-list"></ul>
         </div>
     </div>
 
     <script src="sentences.js"></script>
 
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            onSnapshot,
+            collection
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // --- Configuration ---
-        // Deploy cloudflare-worker/worker.js, then paste its URL here.
-        // Keep the Groq API key on the Worker as a secret; never put it in this file.
-        const AI_PROXY_URL= "https://translation-groq-worker.akibzilan.workers.dev/";
+        // Cloudflare Worker URL. Keep the Groq API key on the Worker as a secret.
+        const AI_PROXY_URL = "https://translation-groq-worker.akibzilan.workers.dev/";
 
-        // IMPORTANT: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
         const firebaseConfig = {
-          apiKey: "AIzaSyByvJfQjB38PkBAfY9wvtT9T7-RAhSGHjQ",
-          authDomain: "translation-798e4.firebaseapp.com",
-          projectId: "translation-798e4",
-          storageBucket: "translation-798e4.appspot.com",
-          messagingSenderId: "901427739113",
-          appId: "1:901427739113:web:eb48bef88bf58d3236f378",
-          measurementId: "G-9FRPLN921M"
+            apiKey: "AIzaSyByvJfQjB38PkBAfY9wvtT9T7-RAhSGHjQ",
+            authDomain: "translation-798e4.firebaseapp.com",
+            projectId: "translation-798e4",
+            storageBucket: "translation-798e4.appspot.com",
+            messagingSenderId: "901427739113",
+            appId: "1:901427739113:web:eb48bef88bf58d3236f378",
+            measurementId: "G-9FRPLN921M"
         };
 
         const DAILY_GOAL = 100;
         const WEEKLY_GOAL = 1000;
+        const RANKS = [
+            { name: "General", minScore: 10000 },
+            { name: "Lieutenant General", minScore: 6600 },
+            { name: "Major General", minScore: 4100 },
+            { name: "Brigadier General", minScore: 2600 },
+            { name: "Colonel", minScore: 1600 },
+            { name: "Lieutenant Colonel", minScore: 1000 },
+            { name: "Major", minScore: 600 },
+            { name: "Captain", minScore: 300 },
+            { name: "First Lieutenant", minScore: 100 },
+            { name: "Second Lieutenant", minScore: 0 }
+        ];
+        const ERROR_CRITERIA = [
+            "Incorrect Word Choice",
+            "Omission or Addition",
+            "Incorrect Tense or Aspect",
+            "Article Errors",
+            "Mistranslating Idioms and Proverbs",
+            "Incorrect Register or Formality",
+            "Loss of Nuance or Connotation",
+            "incorrect Word Order",
+            "Preposition Errors",
+            "Literal Translation"
+        ];
 
-        const RANKS = [ { name: 'General', minScore: 10000 }, { name: 'Lieutenant General', minScore: 6600 }, { name: 'Major General', minScore: 4100 }, { name: 'Brigadier General', minScore: 2600 }, { name: 'Colonel', minScore: 1600 }, { name: 'Lieutenant Colonel', minScore: 1000 }, { name: 'Major', minScore: 600 }, { name: 'Captain', minScore: 300 }, { name: 'First Lieutenant', minScore: 100 }, { name: 'Second Lieutenant', minScore: 0 }];
-        const ERROR_CRITERIA = [ 'Incorrect Word Choice', 'Omission or Addition', 'Incorrect Tense or Aspect', 'Article Errors', 'Mistranslating Idioms and Proverbs', 'Incorrect Register or Formality', 'Loss of Nuance or Connotation', 'incorrect Word Order', 'Preposition Errors', 'Literal Translation' ];
+        // DOM Elements
+        const bengaliSentenceEl = document.getElementById("bengali-sentence");
+        const englishTranslationEl = document.getElementById("english-translation");
+        const submitBtn = document.getElementById("submit-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const againBtn = document.getElementById("again-btn");
+        const skipBtn = document.getElementById("skip-btn");
+        const deleteSentenceBtn = document.getElementById("delete-sentence-btn");
+        const resultsEl = document.getElementById("results");
+        const scoreEl = document.getElementById("score");
+        const evaluationEl = document.getElementById("evaluation");
+        const correctionEl = document.getElementById("correction");
+        const spinner = document.getElementById("spinner");
+        const dailyProgressBar = document.getElementById("daily-progress-bar");
+        const dailyProgressText = document.getElementById("daily-progress-text");
+        const weeklyProgressBar = document.getElementById("weekly-progress-bar");
+        const weeklyProgressText = document.getElementById("weekly-progress-text");
+        const weeklyGoalLabel = document.getElementById("weekly-goal-label");
+        const rankNameEl = document.getElementById("rank-name");
+        const rankScoreEl = document.getElementById("rank-score");
+        const errorAnalysisSection = document.querySelector(".error-analysis-section");
+        const currentErrorsContainer = document.getElementById("current-errors-container");
+        const loginBtn = document.getElementById("login-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+        const userInfo = document.getElementById("user-info");
+        const userNameEl = document.getElementById("user-name");
+        const userPhotoEl = document.getElementById("user-photo");
+        const hallOfFameList = document.getElementById("hall-of-fame-list");
+        const myWordsBtn = document.getElementById("my-words-btn");
+        const wordListModal = document.getElementById("word-list-modal");
+        const closeModalBtn = document.querySelector(".modal-close");
+        const savedWordsList = document.getElementById("saved-words-list");
 
-        // --- DOM Elements ---
-        const bengaliSentenceEl = document.getElementById('bengali-sentence');
-        const englishTranslationEl = document.getElementById('english-translation');
-        const submitBtn = document.getElementById('submit-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const againBtn = document.getElementById('again-btn'); // NEW
-        const skipBtn = document.getElementById('skip-btn');
-        const deleteSentenceBtn = document.getElementById('delete-sentence-btn'); // NEW
-        const resultsEl = document.getElementById('results');
-        const scoreEl = document.getElementById('score');
-        const evaluationEl = document.getElementById('evaluation');
-        const correctionEl = document.getElementById('correction');
-        const spinner = document.getElementById('spinner');
-        const dailyProgressBar = document.getElementById('daily-progress-bar');
-        const dailyProgressText = document.getElementById('daily-progress-text');
-        const weeklyProgressBar = document.getElementById('weekly-progress-bar');
-        const weeklyProgressText = document.getElementById('weekly-progress-text');
-        const weeklyGoalLabel = document.getElementById('weekly-goal-label');
-        const rankNameEl = document.getElementById('rank-name');
-        const rankScoreEl = document.getElementById('rank-score');
-        const errorAnalysisSection = document.querySelector('.error-analysis-section');
-        const currentErrorsContainer = document.getElementById('current-errors-container');
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const authContainer = document.getElementById('auth-container');
-        const userInfo = document.getElementById('user-info');
-        const userNameEl = document.getElementById('user-name');
-        const userPhotoEl = document.getElementById('user-photo');
-        const hallOfFameList = document.getElementById('hall-of-fame-list');
-        // NEW: Word List DOM Elements
-        const myWordsBtn = document.getElementById('my-words-btn');
-        const wordListModal = document.getElementById('word-list-modal');
-        const closeModalBtn = document.querySelector('.modal-close');
-        const savedWordsList = document.getElementById('saved-words-list');
-
-
-        // --- Firebase Initialization ---
+        // Firebase Initialization
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
         let currentUser = null;
-        let userData = {}; // Holds all user progress data from Firestore
-        let currentSentence;
+        let userData = {};
+        let currentSentence = null;
         let currentSentenceIndex = -1;
-        let firestoreUnsubscribe = null; // To hold the listener cleanup function
-        let hallOfFameUnsubscribe = null; // NEW: For Hall of Fame listener
+        let firestoreUnsubscribe = null;
+        let hallOfFameUnsubscribe = null;
         let isInitialLoad = true;
 
-        // --- Date Helper Functions (Unchanged) ---
-        function getTodaysDateString() { return new Date().toISOString().split('T')[0]; }
+        // Local-date helpers (avoids UTC date shifts near midnight in Bangladesh).
+        function formatLocalDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+        function getTodaysDateString() {
+            return formatLocalDate(new Date());
+        }
         function getWeekStartDateString() {
-            const now = new Date();
-            const dayOfWeek = now.getDay();
-            const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-            const monday = new Date(new Date(now).setDate(diff));
-            return monday.toISOString().split('T')[0];
+            const monday = new Date();
+            const dayOfWeek = monday.getDay();
+            const daysSinceMonday = (dayOfWeek + 6) % 7;
+            monday.setDate(monday.getDate() - daysSinceMonday);
+            return formatLocalDate(monday);
         }
 
-        // --- CORRECTED: Real-time Firestore Listener ---
+        // Private progress listener. The public leaderboard is stored separately.
         function setupFirestoreListener(userId) {
-             if (needsWrite || isInitialLoad) {
-    saveDataToFirestore().catch((error) => {
-        console.error("Failed to save profile/leaderboard:", error);
-    });
-}
-        }
+            if (firestoreUnsubscribe) {
+                firestoreUnsubscribe();
+                firestoreUnsubscribe = null;
+            }
+
             const docRef = doc(db, "users", userId);
-            firestoreUnsubscribe = onSnapshot(docRef, (docSnap) => {
-                let needsWrite = false;
 
-                if (docSnap.exists()) {
-                    userData = docSnap.data();
+            firestoreUnsubscribe = onSnapshot(
+                docRef,
+                (docSnap) => {
+                    if (!currentUser || currentUser.uid !== userId) return;
 
-                    // NEW: Check if user profile needs an update
-                    if (userData.displayName !== currentUser.displayName || userData.photoURL !== currentUser.photoURL) {
-                        userData.displayName = currentUser.displayName;
-                        userData.photoURL = currentUser.photoURL;
-                        needsWrite = true;
-                    }
-
+                    let needsWrite = false;
                     const todayStr = getTodaysDateString();
                     const weekStartStr = getWeekStartDateString();
 
-                    if (!userData.dailyScoreData) {
-                        userData.dailyScoreData = { date: todayStr, score: 0 };
-                        needsWrite = true;
-                    }
-                    if (!userData.weeklyScoreData) {
-                        userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                    if (docSnap.exists()) {
+                        userData = docSnap.data() || {};
+
+                        const latestDisplayName = currentUser.displayName || "Anonymous User";
+                        const latestPhotoURL = currentUser.photoURL || "";
+                        if (userData.displayName !== latestDisplayName || userData.photoURL !== latestPhotoURL) {
+                            userData.displayName = latestDisplayName;
+                            userData.photoURL = latestPhotoURL;
+                            needsWrite = true;
+                        }
+
+                        if (!userData.dailyScoreData || userData.dailyScoreData.date !== todayStr) {
+                            userData.dailyScoreData = { date: todayStr, score: 0 };
+                            needsWrite = true;
+                        }
+
+                        if (!userData.weeklyScoreData || userData.weeklyScoreData.weekStartDate !== weekStartStr) {
+                            userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                            needsWrite = true;
+                        }
+
+                        if (!Array.isArray(userData.usedTranslationIndices)) {
+                            userData.usedTranslationIndices = [];
+                            needsWrite = true;
+                        }
+                        if (!Array.isArray(userData.savedWords)) {
+                            userData.savedWords = [];
+                            needsWrite = true;
+                        }
+                        if (!Array.isArray(userData.deletedSentenceIndices)) {
+                            userData.deletedSentenceIndices = [];
+                            needsWrite = true;
+                        }
+                        if (typeof userData.totalScore !== "number" || !Number.isFinite(userData.totalScore)) {
+                            userData.totalScore = Number(userData.totalScore) || 0;
+                            needsWrite = true;
+                        }
+                    } else {
+                        userData = {
+                            displayName: currentUser.displayName || "Anonymous User",
+                            photoURL: currentUser.photoURL || "",
+                            totalScore: 0,
+                            dailyScoreData: { date: todayStr, score: 0 },
+                            weeklyScoreData: { weekStartDate: weekStartStr, score: 0 },
+                            usedTranslationIndices: [],
+                            savedWords: [],
+                            deletedSentenceIndices: []
+                        };
                         needsWrite = true;
                     }
 
-                    if (userData.dailyScoreData.date !== todayStr) {
-                        userData.dailyScoreData = { date: todayStr, score: 0 };
-                        needsWrite = true;
-                    }
-                    if (userData.weeklyScoreData.weekStartDate !== weekStartStr) {
-                        userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
-                        needsWrite = true;
-                    }
-                    // Ensure usedTranslationIndices exists for older user profiles.
-                    // Without this, getNewSentence() calls .push() on undefined.
-                    if (!Array.isArray(userData.usedTranslationIndices)) {
-                        userData.usedTranslationIndices = [];
-                        needsWrite = true;
-                    }
-                    // NEW: Ensure savedWords array exists
-                    if (!Array.isArray(userData.savedWords)) {
-                        userData.savedWords = [];
-                        needsWrite = true;
-                    }
-                    // NEW: Ensure deletedSentenceIndices array exists
-                    if (!Array.isArray(userData.deletedSentenceIndices)) {
-                        userData.deletedSentenceIndices = [];
-                        needsWrite = true;
+                    updateAllUI();
+
+                    const wasInitialLoad = isInitialLoad;
+                    if (wasInitialLoad) {
+                        displaySentence();
+                        isInitialLoad = false;
                     }
 
-                } else {
-                    // Set default data for a new user
-                    userData = {
-                        displayName: currentUser.displayName,
-                        photoURL: currentUser.photoURL,
-                        totalScore: 0,
-                        dailyScoreData: { date: getTodaysDateString(), score: 0 },
-                        weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
-                        usedTranslationIndices: [],
-                        savedWords: [], // NEW: Initialize for new users
-                        deletedSentenceIndices: [] // NEW: Initialize for new users
-                    };
-                    needsWrite = true;
+                    // Mirror a user's public stats on first load and after profile/score changes.
+                    if (needsWrite || wasInitialLoad) {
+                        saveDataToFirestore().catch((error) => {
+                            console.error("Failed to save profile/leaderboard:", error);
+                            showTemporaryMessage("Could not save your progress. Check Firestore rules and connection.");
+                        });
+                    }
+                },
+                (error) => {
+                    console.error("Profile listener failed:", error);
+                    showTemporaryMessage("Could not load your progress. Check your connection and Firestore rules.");
                 }
-
-                if (needsWrite) {
-                    setDoc(docRef, userData, { merge: true });
-                    // FIX: The 'return' statement was removed from here.
-                    // Previously, the function would exit here if data needed to be written,
-                    // preventing the sentence from being displayed on the first load for a new user.
-                    // Now, it writes the data and continues to update the UI immediately.
-                }
-
-                updateAllUI();
-
-                if (isInitialLoad) {
-                    displaySentence();
-                    isInitialLoad = false;
-                }
-            });
+            );
         }
 
-        // MODIFIED: Hall of Fame Listener
+        // Public leaderboard listener. It reads leaderboard documents only, never private profiles.
         function setupHallOfFameListener() {
             if (hallOfFameUnsubscribe) {
                 hallOfFameUnsubscribe();
+                hallOfFameUnsubscribe = null;
             }
 
-          const leaderboardRef = collection(db, "leaderboard");
-hallOfFameUnsubscribe = onSnapshot(leaderboardRef, (querySnapshot) => {
-                const users = [];
-                querySnapshot.forEach((doc) => {
-                    users.push(doc.data());
-                 }, (error) => {
-    console.error("Hall of Fame listener failed:", error);
-    hallOfFameList.innerHTML =
-        '<li style="text-align:center;padding:1rem 0;">Hall of Fame unavailable. Check the Firestore rules.</li>';
-});
-                                     
-                                     
-                                     
-                                     
+            const leaderboardRef = collection(db, "leaderboard");
+            hallOfFameUnsubscribe = onSnapshot(
+                leaderboardRef,
+                (querySnapshot) => {
+                    const users = [];
+                    querySnapshot.forEach((snapshotDoc) => users.push(snapshotDoc.data()));
 
-                const currentWeekStart = getWeekStartDateString();
-                const weeklyParticipants = users.filter(user => 
-                    user.weeklyScoreData &&
-                    user.weeklyScoreData.weekStartDate === currentWeekStart &&
-                    (user.weeklyScoreData.score || 0) > 0
-                );
+                    const currentWeekStart = getWeekStartDateString();
+                    const weeklyParticipants = users.filter((user) =>
+                        user.weeklyScoreData &&
+                        user.weeklyScoreData.weekStartDate === currentWeekStart &&
+                        Number(user.weeklyScoreData.score || 0) > 0
+                    );
+                    weeklyParticipants.sort((a, b) =>
+                        Number(b.weeklyScoreData.score || 0) - Number(a.weeklyScoreData.score || 0)
+                    );
+                    const topUsers = weeklyParticipants.slice(0, 10);
+                    hallOfFameList.innerHTML = "";
 
-                weeklyParticipants.sort((a, b) => (b.weeklyScoreData.score || 0) - (a.weeklyScoreData.score || 0));
+                    if (topUsers.length === 0) {
+                        hallOfFameList.innerHTML = '<li style="text-align:center;color:#6e6e73;padding:1rem 0;">No participants this week yet. Be the first!</li>';
+                        return;
+                    }
 
-                const topUsers = weeklyParticipants.slice(0, 10);
+                    topUsers.forEach((user, index) => {
+                        const userRank = getRank(Number(user.totalScore || 0));
+                        const weeklyScore = Number(user.weeklyScoreData.score || 0);
+                        const listItem = document.createElement("li");
+                        listItem.className = "hof-user";
+                        if (index === 0) listItem.classList.add("hof-user-1");
+                        if (index === 1) listItem.classList.add("hof-user-2");
+                        if (index === 2) listItem.classList.add("hof-user-3");
 
-                hallOfFameList.innerHTML = '';
+                        const photo = document.createElement("img");
+                        photo.src = user.photoURL || "https://placehold.co/40x40/EFEFEF/AAAAAA?text=?";
+                        photo.alt = user.displayName || "User";
+                        photo.referrerPolicy = "no-referrer";
 
-                if (topUsers.length === 0) {
-                    hallOfFameList.innerHTML = '<li style="text-align: center; color: #6e6e73; padding: 1rem 0;">No participants this week yet. Be the first!</li>';
-                    return;
+                        const info = document.createElement("div");
+                        info.className = "hof-user-info";
+                        const name = document.createElement("div");
+                        name.className = "hof-user-name";
+                        name.textContent = user.displayName || "Anonymous User";
+                        const details = document.createElement("div");
+                        details.className = "hof-user-details";
+                        details.textContent = `${userRank.emoji} ${userRank.name} - ${weeklyScore.toLocaleString()} pts this week`;
+                        info.append(name, details);
+                        listItem.append(photo, info);
+                        hallOfFameList.appendChild(listItem);
+                    });
+                },
+                (error) => {
+                    console.error("Hall of Fame listener failed:", error);
+                    hallOfFameList.innerHTML = '<li style="text-align:center;padding:1rem 0;">Hall of Fame unavailable. Check Firestore rules.</li>';
                 }
-
-                topUsers.forEach((user, index) => {
-                    const userRank = getRank(user.totalScore || 0);
-                    const listItem = document.createElement('li');
-                    listItem.className = 'hof-user';
-
-                    if (index === 0) listItem.classList.add('hof-user-1');
-                    if (index === 1) listItem.classList.add('hof-user-2');
-                    if (index === 2) listItem.classList.add('hof-user-3');
-
-                    listItem.innerHTML = `
-                        <img src="${user.photoURL || 'https://placehold.co/40x40/EFEFEF/AAAAAA?text=?'}" alt="${user.displayName || 'User'}">
-                        <div class="hof-user-info">
-                            <div class="hof-user-name">${user.displayName || 'Anonymous User'}</div>
-                            <div class="hof-user-details">${userRank.emoji} ${userRank.name} - <b>${(user.weeklyScoreData.score || 0).toLocaleString()}</b> pts this week</div>
-                        </div>
-                    `;
-                    hallOfFameList.appendChild(listItem);
-                });
-            });
+            );
         }
 
+        // Save the full private profile and a deliberately limited public leaderboard entry.
+        async function saveDataToFirestore() {
+            if (!currentUser) return;
 
-       async function saveDataToFirestore() {
-    if (!currentUser) return;
+            const userId = currentUser.uid;
+            const privateProfileRef = doc(db, "users", userId);
+            const publicLeaderboardRef = doc(db, "leaderboard", userId);
+            const publicEntry = {
+                displayName: String(currentUser.displayName || userData.displayName || "Anonymous User"),
+                photoURL: String(currentUser.photoURL || userData.photoURL || ""),
+                totalScore: Number(userData.totalScore || 0),
+                weeklyScoreData: {
+                    weekStartDate: String(userData.weeklyScoreData?.weekStartDate || getWeekStartDateString()),
+                    score: Number(userData.weeklyScoreData?.score || 0)
+                }
+            };
 
-    const privateProfileRef = doc(db, "users", currentUser.uid);
-    const publicLeaderboardRef = doc(db, "leaderboard", currentUser.uid);
-
-    const publicEntry = {
-        displayName: String(currentUser.displayName || userData.displayName || "Anonymous User"),
-        photoURL: String(currentUser.photoURL || userData.photoURL || ""),
-        totalScore: Number(userData.totalScore || 0),
-        weeklyScoreData: {
-            weekStartDate: String(
-                userData.weeklyScoreData?.weekStartDate || getWeekStartDateString()
-            ),
-            score: Number(userData.weeklyScoreData?.score || 0)
+            await Promise.all([
+                setDoc(privateProfileRef, userData, { merge: true }),
+                setDoc(publicLeaderboardRef, publicEntry, { merge: true })
+            ]);
         }
-    };
 
-    await Promise.all([
-        setDoc(privateProfileRef, userData, { merge: true }),
-        setDoc(publicLeaderboardRef, publicEntry, { merge: true })
-    ]);
-}
-
-        // --- Authentication Functions ---
+        // Authentication
         async function signIn() {
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Authentication Error:", error);
-                showTemporaryMessage("Failed to sign in. Please check console.");
+                showTemporaryMessage(`Failed to sign in: ${error.message || "Please try again."}`);
+            }
+        }
+        async function signOutUser() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Sign-out error:", error);
+                showTemporaryMessage("Could not sign out. Please try again.");
             }
         }
 
-        function signOutUser() {
-            signOut(auth);
-        }
-
-        onAuthStateChanged(auth, user => {
+        onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            if (user) {
-                // User is signed in
-                userNameEl.textContent = user.displayName;
-                userPhotoEl.src = user.photoURL;
-                loginBtn.classList.add('hidden');
-                userInfo.classList.remove('hidden');
-                englishTranslationEl.disabled = false;
-                submitBtn.disabled = false;
-                skipBtn.disabled = false;
-                myWordsBtn.disabled = false; // NEW: Enable button
-                isInitialLoad = true; // Reset for new login
-                setupFirestoreListener(user.uid);
-                setupHallOfFameListener(); // NEW
-            } else {
-                // User is signed out
-                if (firestoreUnsubscribe) firestoreUnsubscribe();
-                if (hallOfFameUnsubscribe) hallOfFameUnsubscribe(); // NEW
 
-                loginBtn.classList.remove('hidden');
-                userInfo.classList.add('hidden');
+            if (user) {
+                userNameEl.textContent = user.displayName || "Anonymous User";
+                userPhotoEl.src = user.photoURL || "https://placehold.co/40x40/EFEFEF/AAAAAA?text=?";
+                userPhotoEl.referrerPolicy = "no-referrer";
+                loginBtn.classList.add("hidden");
+                userInfo.classList.remove("hidden");
+                englishTranslationEl.disabled = false;
+                myWordsBtn.disabled = false;
+                isInitialLoad = true;
+                setupFirestoreListener(user.uid);
+                setupHallOfFameListener();
+            } else {
+                if (firestoreUnsubscribe) {
+                    firestoreUnsubscribe();
+                    firestoreUnsubscribe = null;
+                }
+                if (hallOfFameUnsubscribe) {
+                    hallOfFameUnsubscribe();
+                    hallOfFameUnsubscribe = null;
+                }
+
+                isInitialLoad = true;
+                loginBtn.classList.remove("hidden");
+                userInfo.classList.add("hidden");
                 englishTranslationEl.disabled = true;
                 submitBtn.disabled = true;
                 skipBtn.disabled = true;
-                myWordsBtn.disabled = true; // NEW: Disable button
+                myWordsBtn.disabled = true;
                 bengaliSentenceEl.textContent = "Please log in to start practicing.";
-                hallOfFameList.innerHTML = ''; // NEW
+                hallOfFameList.innerHTML = '<li style="text-align:center;color:#6e6e73;padding:1rem 0;">Sign in to view the Hall of Fame.</li>';
+                wordListModal.style.display = "none";
                 resetUI();
             }
         });
 
-        // --- UI Update Functions ---
+        // UI Updates
         function resetUI() {
-            userData = { totalScore: 0, dailyScoreData: {score: 0}, weeklyScoreData: {score: 0} };
+            userData = {
+                totalScore: 0,
+                dailyScoreData: { date: getTodaysDateString(), score: 0 },
+                weeklyScoreData: { weekStartDate: getWeekStartDateString(), score: 0 },
+                usedTranslationIndices: [],
+                savedWords: [],
+                deletedSentenceIndices: []
+            };
             updateAllUI();
+            resultsEl.classList.add("hidden");
+            spinner.classList.add("hidden");
+            submitBtn.classList.remove("hidden");
+            nextBtn.classList.add("hidden");
+            againBtn.classList.add("hidden");
+            deleteSentenceBtn.classList.add("hidden");
+            errorAnalysisSection.classList.add("hidden");
         }
-
         function updateAllUI() {
-            updateRankAndScoreDisplay(); 
+            updateRankAndScoreDisplay();
             updateProgressBars();
             updateWeeklyDayCount();
         }
-
         function updateWeeklyDayCount() {
-            const now = new Date();
-            let dayOfWeek = now.getDay(); // Sunday is 0, Monday is 1, etc.
-            if (dayOfWeek === 0) {
-                dayOfWeek = 7; // We want Sunday to be day 7
-            }
-            weeklyGoalLabel.textContent = `Weekly Goal ( Day ${dayOfWeek} )`;
+            let dayOfWeek = new Date().getDay();
+            if (dayOfWeek === 0) dayOfWeek = 7;
+            weeklyGoalLabel.textContent = `Weekly Goal (Day ${dayOfWeek})`;
         }
-
         function updateRankAndScoreDisplay() {
-            const score = userData.totalScore || 0;
+            const score = Number(userData.totalScore || 0);
             const currentRank = getRank(score);
             rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
             rankScoreEl.textContent = `Total Score: ${score.toLocaleString()}`;
         }
-
         function updateProgressBars() {
-            const dailyScore = userData.dailyScoreData?.score || 0;
-            const weeklyScore = userData.weeklyScoreData?.score || 0;
-
-            const dailyPercent = Math.min((dailyScore / DAILY_GOAL) * 100, 100);
-            dailyProgressBar.style.width = `${dailyPercent}%`;
+            const dailyScore = Number(userData.dailyScoreData?.score || 0);
+            const weeklyScore = Number(userData.weeklyScoreData?.score || 0);
+            dailyProgressBar.style.width = `${Math.min((dailyScore / DAILY_GOAL) * 100, 100)}%`;
             dailyProgressText.textContent = `${dailyScore} / ${DAILY_GOAL}`;
-
-            const weeklyPercent = Math.min((weeklyScore / WEEKLY_GOAL) * 100, 100);
-            weeklyProgressBar.style.width = `${weeklyPercent}%`;
+            weeklyProgressBar.style.width = `${Math.min((weeklyScore / WEEKLY_GOAL) * 100, 100)}%`;
             weeklyProgressText.textContent = `${weeklyScore} / ${WEEKLY_GOAL}`;
         }
-
         function displayCurrentErrors(errors) {
-            currentErrorsContainer.innerHTML = ''; 
-
-            if (errors && errors.length > 0) {
-                errors.forEach(errorText => {
+            currentErrorsContainer.innerHTML = "";
+            if (Array.isArray(errors) && errors.length > 0) {
+                errors.forEach((errorText) => {
                     if (ERROR_CRITERIA.includes(errorText)) {
-                        const errorTag = document.createElement('div');
-                        errorTag.className = 'error-tag';
+                        const errorTag = document.createElement("div");
+                        errorTag.className = "error-tag";
                         errorTag.textContent = errorText;
                         currentErrorsContainer.appendChild(errorTag);
                     }
                 });
-                errorAnalysisSection.classList.remove('hidden');
-            } else {
-                errorAnalysisSection.classList.add('hidden');
             }
+            const hasErrors = currentErrorsContainer.childElementCount > 0;
+            errorAnalysisSection.classList.toggle("hidden", !hasErrors);
         }
-        
-        // --- NEW: Word Saving Feature ---
+
+        // Word saving and list
         function handleSaveWord(event) {
             if (!currentUser) return;
             event.preventDefault();
 
-            const selection = window.getSelection();
-            if (!selection || selection.isCollapsed) return;
-            
-            // Clean the selected text
-            const word = selection.toString().trim().replace(/[.,?!;:]$/, '').toLowerCase();
-
-            if (word && word.length > 1) { // Check if word is valid
-                if (!userData.savedWords.includes(word)) {
-                    userData.savedWords.push(word);
-                    userData.savedWords.sort(); // Keep the list sorted
-                    saveDataToFirestore();
-                    showTemporaryMessage(`'${word}' saved!`, true);
-                } else {
-                    showTemporaryMessage(`'${word}' is already in your list.`);
+            let selectedText = "";
+            if (event.target === englishTranslationEl) {
+                const start = englishTranslationEl.selectionStart;
+                const end = englishTranslationEl.selectionEnd;
+                if (typeof start === "number" && typeof end === "number" && end > start) {
+                    selectedText = englishTranslationEl.value.slice(start, end);
                 }
+            } else {
+                const selection = window.getSelection();
+                if (selection && !selection.isCollapsed) selectedText = selection.toString();
             }
-            window.getSelection().removeAllRanges(); // Deselect text
+
+            const word = selectedText.trim().replace(/^[\s.,?!;:"'“”‘’()]+|[\s.,?!;:"'“”‘’()]+$/g, "").toLowerCase();
+            if (!word || word.length < 2) {
+                showTemporaryMessage("Select a word or phrase first.");
+                return;
+            }
+
+            if (!Array.isArray(userData.savedWords)) userData.savedWords = [];
+            if (userData.savedWords.includes(word)) {
+                showTemporaryMessage(`“${word}” is already in your list.`);
+                return;
+            }
+
+            userData.savedWords.push(word);
+            userData.savedWords.sort((a, b) => a.localeCompare(b));
+            saveDataToFirestore().then(() => {
+                showTemporaryMessage(`“${word}” saved!`, true);
+            }).catch((error) => {
+                console.error("Failed to save word:", error);
+                userData.savedWords = userData.savedWords.filter((savedWord) => savedWord !== word);
+                showTemporaryMessage("Could not save the word. Please try again.");
+            });
+            window.getSelection()?.removeAllRanges();
         }
 
         function renderSavedWords() {
-            savedWordsList.innerHTML = '';
-            const words = userData.savedWords || [];
+            savedWordsList.innerHTML = "";
+            const words = Array.isArray(userData.savedWords) ? userData.savedWords : [];
             if (words.length === 0) {
-                savedWordsList.innerHTML = '<li>No words saved yet. Double-click or right-click a word to save it.</li>';
+                const li = document.createElement("li");
+                li.textContent = "No words saved yet. Select a word in your translation or feedback to save it.";
+                savedWordsList.appendChild(li);
                 return;
             }
-            words.forEach(word => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${word}</span>
-                    <button class="delete-word-btn" data-word="${word}">&times;</button>
-                `;
+
+            words.forEach((word) => {
+                const li = document.createElement("li");
+                const wordLabel = document.createElement("span");
+                wordLabel.textContent = word;
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "delete-word-btn";
+                deleteBtn.dataset.word = word;
+                deleteBtn.type = "button";
+                deleteBtn.setAttribute("aria-label", `Delete ${word}`);
+                deleteBtn.textContent = "×";
+                li.append(wordLabel, deleteBtn);
                 savedWordsList.appendChild(li);
             });
         }
-        
         function handleDeleteWord(event) {
-            if (event.target.classList.contains('delete-word-btn')) {
-                const wordToDelete = event.target.dataset.word;
-                userData.savedWords = userData.savedWords.filter(w => w !== wordToDelete);
-                saveDataToFirestore();
-                renderSavedWords(); // Re-render the list
-            }
+            const deleteButton = event.target.closest(".delete-word-btn");
+            if (!deleteButton || !currentUser) return;
+            const wordToDelete = deleteButton.dataset.word;
+            const previousWords = [...(userData.savedWords || [])];
+            userData.savedWords = previousWords.filter((word) => word !== wordToDelete);
+            renderSavedWords();
+            saveDataToFirestore().catch((error) => {
+                console.error("Failed to delete word:", error);
+                userData.savedWords = previousWords;
+                renderSavedWords();
+                showTemporaryMessage("Could not delete the word. Please try again.");
+            });
         }
 
-
-        // --- Core Application Logic ---
+        // Core Practice Logic
         function getRank(score) {
-            const rankData = { 'General': '⭐️⭐️⭐️⭐️', 'Lieutenant General': '⭐️⭐️⭐️', 'Major General': '⭐️⭐️', 'Brigadier General': '⭐️', 'Colonel': '🦅', 'Lieutenant Colonel': '🦅', 'Major': '🎖️', 'Captain': '🎖️', 'First Lieutenant': '🔰', 'Second Lieutenant': '🔰' };
+            const rankEmojis = {
+                "General": "⭐️⭐️⭐️⭐️",
+                "Lieutenant General": "⭐️⭐️⭐️",
+                "Major General": "⭐️⭐️",
+                "Brigadier General": "⭐️",
+                "Colonel": "🦅",
+                "Lieutenant Colonel": "🦅",
+                "Major": "🎖️",
+                "Captain": "🎖️",
+                "First Lieutenant": "🔰",
+                "Second Lieutenant": "🔰"
+            };
             for (const rank of RANKS) {
-                if (score >= rank.minScore) return { name: rank.name, emoji: rankData[rank.name] || '' };
+                if (score >= rank.minScore) return { name: rank.name, emoji: rankEmojis[rank.name] || "" };
             }
-            return { name: 'Second Lieutenant', emoji: '🔰' };
+            return { name: "Second Lieutenant", emoji: "🔰" };
+        }
+
+        function getSentenceBank() {
+            // Supports either `const sentences = [...]` or `window.sentences = [...]` in sentences.js.
+            if (typeof sentences !== "undefined" && Array.isArray(sentences)) return sentences;
+            if (Array.isArray(window.sentences)) return window.sentences;
+            return [];
         }
 
         function getNewSentence() {
-            let usedIndices = userData.usedTranslationIndices || [];
-            let deletedIndices = userData.deletedSentenceIndices || [];
-            
-            let availableIndices = sentences.map((_, i) => i).filter(i => !usedIndices.includes(i) && !deletedIndices.includes(i));
+            const sentenceBank = getSentenceBank();
+            if (sentenceBank.length === 0) {
+                showTemporaryMessage("sentences.js did not load or contains no sentences.");
+                return null;
+            }
+
+            let usedIndices = Array.isArray(userData.usedTranslationIndices) ? userData.usedTranslationIndices : [];
+            const deletedIndices = Array.isArray(userData.deletedSentenceIndices) ? userData.deletedSentenceIndices : [];
+            let availableIndices = sentenceBank
+                .map((_, index) => index)
+                .filter((index) => !usedIndices.includes(index) && !deletedIndices.includes(index));
 
             if (availableIndices.length === 0) {
-                showTemporaryMessage("You've completed all available sentences! Resetting your progress. Great job!", true);
+                showTemporaryMessage("You've completed all available sentences! Resetting your practice history.", true);
                 userData.usedTranslationIndices = [];
-                saveDataToFirestore(); 
-                
                 usedIndices = [];
-                availableIndices = sentences.map((_, i) => i).filter(i => !deletedIndices.includes(i));
-                
-                if (availableIndices.length === 0) {
-                    return null; 
-                }
+                availableIndices = sentenceBank
+                    .map((_, index) => index)
+                    .filter((index) => !deletedIndices.includes(index));
+                saveDataToFirestore().catch((error) => console.error("Could not reset sentence history:", error));
+                if (availableIndices.length === 0) return null;
             }
 
             const newSentenceIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
             currentSentenceIndex = newSentenceIndex;
+            if (!Array.isArray(userData.usedTranslationIndices)) userData.usedTranslationIndices = [];
             userData.usedTranslationIndices.push(newSentenceIndex);
-            return sentences[newSentenceIndex];
+            saveDataToFirestore().catch((error) => console.error("Could not save sentence history:", error));
+            return sentenceBank[newSentenceIndex];
         }
 
         function displaySentence() {
@@ -996,34 +932,35 @@ hallOfFameUnsubscribe = onSnapshot(leaderboardRef, (querySnapshot) => {
 
             if (!currentSentence) {
                 bengaliSentenceEl.textContent = "You have practiced or deleted all available sentences.";
-                englishTranslationEl.value = '';
+                englishTranslationEl.value = "";
                 englishTranslationEl.disabled = true;
-                submitBtn.classList.remove('hidden');
+                submitBtn.classList.remove("hidden");
                 submitBtn.disabled = true;
-                skipBtn.classList.remove('hidden');
+                skipBtn.classList.remove("hidden");
                 skipBtn.disabled = true;
-                nextBtn.classList.add('hidden');
-                againBtn.classList.add('hidden');
-                deleteSentenceBtn.classList.add('hidden');
-                errorAnalysisSection.classList.add('hidden');
+                nextBtn.classList.add("hidden");
+                againBtn.classList.add("hidden");
+                deleteSentenceBtn.classList.add("hidden");
+                resultsEl.classList.add("hidden");
+                errorAnalysisSection.classList.add("hidden");
                 return;
             }
 
-            bengaliSentenceEl.textContent = currentSentence.Bengali;
-            englishTranslationEl.value = '';
-            resultsEl.classList.add('hidden');
-            nextBtn.classList.add('hidden');
-            againBtn.classList.add('hidden');
-            deleteSentenceBtn.classList.add('hidden');
+            bengaliSentenceEl.textContent = currentSentence.Bengali || "Sentence text missing.";
+            englishTranslationEl.value = "";
+            resultsEl.classList.add("hidden");
+            nextBtn.classList.add("hidden");
+            againBtn.classList.add("hidden");
+            deleteSentenceBtn.classList.add("hidden");
             againBtn.disabled = false;
-            submitBtn.classList.remove('hidden');
+            deleteSentenceBtn.disabled = false;
+            submitBtn.classList.remove("hidden");
             submitBtn.disabled = false;
-            skipBtn.classList.remove('hidden');
+            skipBtn.classList.remove("hidden");
             skipBtn.disabled = false;
             englishTranslationEl.disabled = false;
-
-            errorAnalysisSection.classList.add('hidden');
-            currentErrorsContainer.innerHTML = '';
+            errorAnalysisSection.classList.add("hidden");
+            currentErrorsContainer.innerHTML = "";
         }
 
         async function fetchWithRetry(url, options, retries = 3, initialDelay = 1000) {
@@ -1036,7 +973,7 @@ hallOfFameUnsubscribe = onSnapshot(leaderboardRef, (querySnapshot) => {
                     lastError = error;
                     if (i < retries - 1) {
                         console.warn(`Network attempt ${i + 1} failed; retrying.`, error);
-                        await new Promise(resolve => setTimeout(resolve, initialDelay));
+                        await new Promise((resolve) => setTimeout(resolve, initialDelay));
                         initialDelay *= 2;
                         continue;
                     }
@@ -1044,115 +981,128 @@ hallOfFameUnsubscribe = onSnapshot(leaderboardRef, (querySnapshot) => {
                 }
 
                 if (response.ok) return response;
-
                 let errorMessage = `API error: HTTP ${response.status}`;
                 try {
                     const errorData = await response.clone().json();
                     const detail = errorData?.error?.message || errorData?.error || errorData?.message;
-                    if (detail) errorMessage = `${errorMessage} — ${detail}`;
-                } catch (_) { /* Keep the HTTP status as the fallback. */ }
+                    if (detail) errorMessage += ` — ${detail}`;
+                } catch (_) { /* Keep the HTTP status as fallback. */ }
 
                 const retryable = [429, 500, 502, 503, 504].includes(response.status);
                 if (!retryable || i === retries - 1) throw new Error(errorMessage);
-
                 lastError = new Error(errorMessage);
-                const retryAfter = Number(response.headers.get('Retry-After'));
-                const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
-                    ? retryAfter * 1000
-                    : initialDelay;
+                const retryAfter = Number(response.headers.get("Retry-After"));
+                const waitMs = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : initialDelay;
                 console.warn(`Attempt ${i + 1} failed (${response.status}); retrying in ${waitMs}ms.`);
-                await new Promise(resolve => setTimeout(resolve, waitMs));
+                await new Promise((resolve) => setTimeout(resolve, waitMs));
                 initialDelay *= 2;
             }
-            throw lastError || new Error('The AI service could not be reached.');
+            throw lastError || new Error("The AI service could not be reached.");
         }
-
 
         async function getEvaluation() {
             const userTranslation = englishTranslationEl.value.trim();
-            if (!userTranslation) { showTemporaryMessage("Please enter your translation."); return; }
-           
-if (
-    !AI_PROXY_URL ||
-    AI_PROXY_URL.includes("YOUR-WORKER-NAME") ||
-    AI_PROXY_URL.includes("YOUR-SUBDOMAIN")
-) {
-    showTemporaryMessage(
-        "Please finish the AI setup: deploy the Cloudflare Worker and set AI_PROXY_URL in index.html."
-    );
-    return;
-}
-            spinner.classList.remove('hidden');
+            if (!userTranslation) {
+                showTemporaryMessage("Please enter your translation.");
+                return;
+            }
+            if (!AI_PROXY_URL || AI_PROXY_URL.includes("YOUR-WORKER-NAME") || AI_PROXY_URL.includes("YOUR-SUBDOMAIN")) {
+                showTemporaryMessage("Please finish the AI setup: deploy the Cloudflare Worker and set AI_PROXY_URL in index.html.");
+                return;
+            }
+            if (!currentUser || !currentSentence) {
+                showTemporaryMessage("Please sign in and load a sentence first.");
+                return;
+            }
+
+            spinner.classList.remove("hidden");
             submitBtn.disabled = true;
             skipBtn.disabled = true;
             englishTranslationEl.disabled = true;
 
             const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
+            let evaluationSucceeded = false;
             try {
-                if (!currentUser) throw new Error("Please sign in again before evaluating your translation.");
                 const firebaseIdToken = await currentUser.getIdToken();
                 const response = await fetchWithRetry(AI_PROXY_URL, {
-                    method: 'POST',
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${firebaseIdToken}`
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${firebaseIdToken}`
                     },
                     body: JSON.stringify({ prompt })
                 });
-
                 const responseData = await response.json();
-                if (typeof responseData.text !== 'string' || !responseData.text.trim()) {
+                if (typeof responseData.text !== "string" || !responseData.text.trim()) {
                     throw new Error(responseData.error?.message || responseData.error || "Invalid response from the AI service.");
                 }
 
-                let responseText = responseData.text;
-                const jsonString = responseText.slice(responseText.indexOf('{'), responseText.lastIndexOf('}') + 1);
-                const jsonResponse = JSON.parse(jsonString);
-
-                const attemptScore = jsonResponse.score;
+                const responseText = responseData.text;
+                const firstBrace = responseText.indexOf("{");
+                const lastBrace = responseText.lastIndexOf("}");
+                if (firstBrace < 0 || lastBrace < firstBrace) throw new Error("The AI returned invalid JSON. Please try again.");
+                const jsonResponse = JSON.parse(responseText.slice(firstBrace, lastBrace + 1));
+                const attemptScore = Number(jsonResponse.score);
+                if (!Number.isFinite(attemptScore) || attemptScore < 0 || attemptScore > 10) {
+                    throw new Error("The AI returned an invalid score. Please try again.");
+                }
 
                 if (attemptScore < 6) {
-                    userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter(index => index !== currentSentenceIndex);
+                    userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter((index) => index !== currentSentenceIndex);
                     showTemporaryMessage("You'll see this sentence again to practice!");
                 }
 
-                const errorsFound = jsonResponse.errors_found || [];
-                displayCurrentErrors(errorsFound);
-
-                userData.totalScore = (userData.totalScore || 0) + attemptScore;
-                userData.dailyScoreData.score = (userData.dailyScoreData.score || 0) + attemptScore;
-                userData.weeklyScoreData.score = (userData.weeklyScoreData.score || 0) + attemptScore;
-
+                displayCurrentErrors(Array.isArray(jsonResponse.errors_found) ? jsonResponse.errors_found : []);
+                userData.totalScore = Number(userData.totalScore || 0) + attemptScore;
+                userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
+                userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
                 await saveDataToFirestore();
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
-                evaluationEl.textContent = jsonResponse.evaluation;
-                correctionEl.textContent = jsonResponse.correction;
-                resultsEl.classList.remove('hidden');
-
+                evaluationEl.textContent = String(jsonResponse.evaluation || "No feedback was provided.");
+                correctionEl.textContent = String(jsonResponse.correction || currentSentence.English || "No correction was provided.");
+                resultsEl.classList.remove("hidden");
+                evaluationSucceeded = true;
             } catch (error) {
-                console.error("Fetch or Parsing Error:", error);
-                showTemporaryMessage(`An error occurred: ${error.message}`);
+                console.error("Fetch or parsing error:", error);
+                showTemporaryMessage(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
-                spinner.classList.add('hidden');
-                submitBtn.classList.add('hidden');
-                skipBtn.classList.add('hidden');
-                nextBtn.classList.remove('hidden');
-                againBtn.classList.remove('hidden');
-                deleteSentenceBtn.classList.remove('hidden');
+                spinner.classList.add("hidden");
+                submitBtn.classList.add("hidden");
+                skipBtn.classList.add("hidden");
+                nextBtn.classList.remove("hidden");
+                againBtn.classList.remove("hidden");
+                deleteSentenceBtn.classList.remove("hidden");
+                againBtn.disabled = false;
+                deleteSentenceBtn.disabled = false;
+                // Avoid leaving the input locked after an error; results can still be retried.
+                englishTranslationEl.disabled = evaluationSucceeded;
+                if (!evaluationSucceeded) {
+                    submitBtn.classList.remove("hidden");
+                    submitBtn.disabled = false;
+                    nextBtn.classList.add("hidden");
+                    againBtn.classList.add("hidden");
+                    deleteSentenceBtn.classList.add("hidden");
+                    skipBtn.classList.remove("hidden");
+                    skipBtn.disabled = false;
+                    englishTranslationEl.disabled = false;
+                }
             }
         }
 
         async function handleDeleteSentence() {
             if (!currentUser || currentSentenceIndex === -1) return;
+            const deletedIndex = currentSentenceIndex;
+            const wasAlreadyDeleted = (userData.deletedSentenceIndices || []).includes(deletedIndex);
+            const previousUsedIndices = [...(userData.usedTranslationIndices || [])];
+            deleteSentenceBtn.disabled = true;
 
-            deleteSentenceBtn.disabled = true; 
-
-            if (!userData.deletedSentenceIndices.includes(currentSentenceIndex)) {
-                userData.deletedSentenceIndices.push(currentSentenceIndex);
+            if (!wasAlreadyDeleted) {
+                if (!Array.isArray(userData.deletedSentenceIndices)) userData.deletedSentenceIndices = [];
+                userData.deletedSentenceIndices.push(deletedIndex);
             }
-            userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter(index => index !== currentSentenceIndex);
+            userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter((index) => index !== deletedIndex);
 
             try {
                 await saveDataToFirestore();
@@ -1160,65 +1110,75 @@ if (
                 displaySentence();
             } catch (error) {
                 console.error("Failed to delete sentence:", error);
-                userData.deletedSentenceIndices = userData.deletedSentenceIndices.filter(index => index !== currentSentenceIndex);
+                userData.deletedSentenceIndices = (userData.deletedSentenceIndices || []).filter((index) => index !== deletedIndex);
+                userData.usedTranslationIndices = previousUsedIndices;
                 showTemporaryMessage("Could not remove sentence. Please try again.");
                 deleteSentenceBtn.disabled = false;
             }
         }
 
-
         function showTemporaryMessage(message, isSuccess = false) {
-            const messageBox = document.createElement('div');
+            const messageBox = document.createElement("div");
             messageBox.textContent = message;
-            Object.assign(messageBox.style, { position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', backgroundColor: isSuccess ? '#34c759' : '#ff4d4d', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: '1001', opacity: '0', transition: 'opacity 0.5s', textAlign: 'center' });
+            Object.assign(messageBox.style, {
+                position: "fixed",
+                bottom: "20px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: isSuccess ? "#34c759" : "#ff4d4d",
+                color: "white",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                zIndex: "1001",
+                opacity: "0",
+                transition: "opacity 0.5s",
+                textAlign: "center",
+                width: "max-content",
+                maxWidth: "90vw",
+                boxSizing: "border-box"
+            });
             document.body.appendChild(messageBox);
-            setTimeout(() => { messageBox.style.opacity = '1'; }, 10);
+            setTimeout(() => { messageBox.style.opacity = "1"; }, 10);
             setTimeout(() => {
-                messageBox.style.opacity = '0';
-                setTimeout(() => { document.body.removeChild(messageBox); }, 500);
-            }, 3000);
+                messageBox.style.opacity = "0";
+                setTimeout(() => messageBox.remove(), 500);
+            }, 3500);
         }
 
-        // --- Event Listeners & Initial Load ---
-        loginBtn.addEventListener('click', signIn);
-        logoutBtn.addEventListener('click', signOutUser);
-        submitBtn.addEventListener('click', getEvaluation);
-        nextBtn.addEventListener('click', displaySentence);
-        skipBtn.addEventListener('click', displaySentence);
-        deleteSentenceBtn.addEventListener('click', handleDeleteSentence);
+        // Event Listeners
+        loginBtn.addEventListener("click", signIn);
+        logoutBtn.addEventListener("click", signOutUser);
+        submitBtn.addEventListener("click", getEvaluation);
+        nextBtn.addEventListener("click", displaySentence);
+        skipBtn.addEventListener("click", displaySentence);
+        deleteSentenceBtn.addEventListener("click", handleDeleteSentence);
 
+        englishTranslationEl.addEventListener("dblclick", handleSaveWord);
+        englishTranslationEl.addEventListener("contextmenu", handleSaveWord);
+        resultsEl.addEventListener("dblclick", handleSaveWord);
+        resultsEl.addEventListener("contextmenu", handleSaveWord);
 
-        // NEW: Word Saving Event Listeners
-        englishTranslationEl.addEventListener('dblclick', handleSaveWord);
-        englishTranslationEl.addEventListener('contextmenu', handleSaveWord);
-        resultsEl.addEventListener('dblclick', handleSaveWord);
-        resultsEl.addEventListener('contextmenu', handleSaveWord);
-        
-        // NEW: Modal Event Listeners
-        myWordsBtn.addEventListener('click', () => {
+        myWordsBtn.addEventListener("click", () => {
             renderSavedWords();
-            wordListModal.style.display = 'flex';
+            wordListModal.style.display = "flex";
         });
-        closeModalBtn.addEventListener('click', () => {
-            wordListModal.style.display = 'none';
+        closeModalBtn.addEventListener("click", () => { wordListModal.style.display = "none"; });
+        closeModalBtn.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") wordListModal.style.display = "none";
         });
-        wordListModal.addEventListener('click', (event) => {
-            if (event.target === wordListModal) { // Close only if overlay is clicked
-                wordListModal.style.display = 'none';
-            }
+        wordListModal.addEventListener("click", (event) => {
+            if (event.target === wordListModal) wordListModal.style.display = "none";
         });
-        savedWordsList.addEventListener('click', handleDeleteWord);
+        savedWordsList.addEventListener("click", handleDeleteWord);
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") wordListModal.style.display = "none";
+        });
 
-
-        againBtn.addEventListener('click', async () => {
+        againBtn.addEventListener("click", async () => {
             if (!currentUser || currentSentenceIndex === -1) return;
-
-            if (!userData.usedTranslationIndices) {
-                userData.usedTranslationIndices = [];
-            }
-
+            if (!Array.isArray(userData.usedTranslationIndices)) userData.usedTranslationIndices = [];
             const initialLength = userData.usedTranslationIndices.length;
-            userData.usedTranslationIndices = userData.usedTranslationIndices.filter(index => index !== currentSentenceIndex);
+            userData.usedTranslationIndices = userData.usedTranslationIndices.filter((index) => index !== currentSentenceIndex);
 
             if (userData.usedTranslationIndices.length < initialLength) {
                 try {
@@ -1231,12 +1191,12 @@ if (
                     showTemporaryMessage("Could not save preference. Please try again.");
                 }
             } else {
-                 showTemporaryMessage("This sentence is already set to repeat.", true);
-                 againBtn.disabled = true;
+                showTemporaryMessage("This sentence is already set to repeat.", true);
+                againBtn.disabled = true;
             }
         });
 
-        resetUI(); // Start with a clean slate before login
+        resetUI();
     </script>
 </body>
 </html>
