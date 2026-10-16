@@ -1131,13 +1131,19 @@
                 userData.totalScore = Number(userData.totalScore || 0) + pointsEarned;
                 userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + pointsEarned;
                 userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + pointsEarned;
-                await saveDataToFirestore();
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10` + (pointsEarned === 0 ? " (below 5, so no points added)" : "");
                 evaluationEl.textContent = String(jsonResponse.evaluation || "No feedback was provided.");
                 correctionEl.textContent = String(jsonResponse.correction || currentSentence.English || "No correction was provided.");
                 resultsEl.classList.remove("hidden");
                 evaluationSucceeded = true;
+
+                // Show the feedback first; saving is best-effort so a Firestore problem
+                // (quota, network, rules) never hides the AI feedback.
+                saveDataToFirestore().catch((saveError) => {
+                    console.error("Could not save progress after evaluation:", saveError);
+                    showTemporaryMessage("Feedback shown, but your progress could not be saved right now.");
+                });
             } catch (error) {
                 console.error("Fetch or parsing error:", error);
                 showTemporaryMessage(`An error occurred: ${error.message || "Please try again."}`);
