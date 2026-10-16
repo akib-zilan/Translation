@@ -644,12 +644,18 @@
                 },
                 (error) => {
                     console.error("Hall of Fame listener failed:", error);
-                    hallOfFameList.innerHTML = '<li style="text-align:center;padding:1rem 0;">Hall of Fame unavailable. Check Firestore rules.</li>';
+                    hallOfFameList.innerHTML = "";
+                    const errorItem = document.createElement("li");
+                    errorItem.style.textAlign = "center";
+                    errorItem.style.padding = "1rem 0";
+                    errorItem.textContent = `Hall of Fame unavailable (${error.code || "unknown error"}). Check that Firestore rules allow signed-in users to read the leaderboard collection.`;
+                    hallOfFameList.appendChild(errorItem);
                 }
             );
         }
 
-        // Save the full private profile and a deliberately limited public leaderboard entry.
+        // Save the private profile and public leaderboard independently so a leaderboard
+        // permission problem does not hide whether the user's private progress was saved.
         async function saveDataToFirestore() {
             if (!currentUser) return;
 
@@ -666,10 +672,16 @@
                 }
             };
 
-            await Promise.all([
-                setDoc(privateProfileRef, userData, { merge: true }),
-                setDoc(publicLeaderboardRef, publicEntry, { merge: true })
-            ]);
+            // Save private progress first; failure here should remain visible to the caller.
+            await setDoc(privateProfileRef, userData, { merge: true });
+
+            // A failed public write is handled separately and explained to the user.
+            try {
+                await setDoc(publicLeaderboardRef, publicEntry, { merge: true });
+            } catch (error) {
+                console.error("Private progress saved, but leaderboard update failed:", error);
+                showTemporaryMessage("Your progress was saved, but the Hall of Fame could not update. Check Firestore rules for leaderboard writes.");
+            }
         }
 
         // Authentication
@@ -1069,6 +1081,9 @@
                     userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
                     userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
                 }
+
+                // Update the progress display immediately instead of relying only on Firestore's listener.
+                updateAllUI();
 
                 // Show the assessment before attempting to save progress. A slow Firestore
                 // write must not prevent the learner from seeing the result.
