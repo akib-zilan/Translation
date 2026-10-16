@@ -1146,6 +1146,23 @@
         }
 
         // Event Listeners
+        
+ // Prevent pasting into the translation textbox
+englishTranslationEl.addEventListener('paste', (event) => {
+    event.preventDefault();
+    showTemporaryMessage(
+        "Pasting is disabled! Please type your translation."
+    );
+});
+
+// Also prevent dropping copied text into the textbox
+englishTranslationEl.addEventListener('drop', (event) => {
+    event.preventDefault();
+    showTemporaryMessage(
+        "Please type your translation instead of pasting."
+    );
+});
+
         loginBtn.addEventListener("click", signIn);
         logoutBtn.addEventListener("click", signOutUser);
         submitBtn.addEventListener("click", getEvaluation);
