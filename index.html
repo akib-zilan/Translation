@@ -644,18 +644,12 @@
                 },
                 (error) => {
                     console.error("Hall of Fame listener failed:", error);
-                    hallOfFameList.innerHTML = "";
-                    const errorItem = document.createElement("li");
-                    errorItem.style.textAlign = "center";
-                    errorItem.style.padding = "1rem 0";
-                    errorItem.textContent = `Hall of Fame unavailable (${error.code || "unknown error"}). Check that Firestore rules allow signed-in users to read the leaderboard collection.`;
-                    hallOfFameList.appendChild(errorItem);
+                    hallOfFameList.innerHTML = '<li style="text-align:center;padding:1rem 0;">Hall of Fame unavailable. Check Firestore rules.</li>';
                 }
             );
         }
 
-        // Save the private profile and public leaderboard independently so a leaderboard
-        // permission problem does not hide whether the user's private progress was saved.
+        // Save the full private profile and a deliberately limited public leaderboard entry.
         async function saveDataToFirestore() {
             if (!currentUser) return;
 
@@ -672,16 +666,10 @@
                 }
             };
 
-            // Save private progress first; failure here should remain visible to the caller.
-            await setDoc(privateProfileRef, userData, { merge: true });
-
-            // A failed public write is handled separately and explained to the user.
-            try {
-                await setDoc(publicLeaderboardRef, publicEntry, { merge: true });
-            } catch (error) {
-                console.error("Private progress saved, but leaderboard update failed:", error);
-                showTemporaryMessage("Your progress was saved, but the Hall of Fame could not update. Check Firestore rules for leaderboard writes.");
-            }
+            await Promise.all([
+                setDoc(privateProfileRef, userData, { merge: true }),
+                setDoc(publicLeaderboardRef, publicEntry, { merge: true })
+            ]);
         }
 
         // Authentication
@@ -1037,9 +1025,6 @@
             const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             let evaluationSucceeded = false;
-            // Stop a stalled AI request so the loading spinner cannot run forever.
-            const requestAbortController = new AbortController();
-            const evaluationTimeoutId = setTimeout(() => requestAbortController.abort(), 45000);
             try {
                 const firebaseIdToken = await currentUser.getIdToken();
                 const response = await fetchWithRetry(AI_PROXY_URL, {
@@ -1048,8 +1033,7 @@
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${firebaseIdToken}`
                     },
-                    body: JSON.stringify({ prompt }),
-                    signal: requestAbortController.signal
+                    body: JSON.stringify({ prompt })
                 });
                 const responseData = await response.json();
                 if (typeof responseData.text !== "string" || !responseData.text.trim()) {
@@ -1068,11 +1052,7 @@
 
                 if (attemptScore < 6) {
                     userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter((index) => index !== currentSentenceIndex);
-                    if (attemptScore < 5) {
-                        showTemporaryMessage("Score below 5: no points awarded. You'll see this sentence again to practice!");
-                    } else {
-                        showTemporaryMessage("You'll see this sentence again to practice!");
-                    }
+                    showTemporaryMessage("You'll see this sentence again to practice!");
                 }
 
                 displayCurrentErrors(Array.isArray(jsonResponse.errors_found) ? jsonResponse.errors_found : []);
@@ -1081,46 +1061,17 @@
                     userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
                     userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
                 }
+                await saveDataToFirestore();
 
-                // Update the progress display immediately instead of relying only on Firestore's listener.
-                updateAllUI();
-
-                // Show the assessment before attempting to save progress. A slow Firestore
-                // write must not prevent the learner from seeing the result.
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
                 evaluationEl.textContent = String(jsonResponse.evaluation || "No feedback was provided.");
                 correctionEl.textContent = String(jsonResponse.correction || currentSentence.English || "No correction was provided.");
                 resultsEl.classList.remove("hidden");
                 evaluationSucceeded = true;
-
-                // Limit how long the UI waits for Firestore; report save trouble separately.
-                let saveTimeoutId;
-                const saveResult = await Promise.race([
-                    saveDataToFirestore().then(
-                        () => ({ status: "saved" }),
-                        (error) => ({ status: "error", error })
-                    ),
-                    new Promise((resolve) => {
-                        saveTimeoutId = setTimeout(() => resolve({ status: "timeout" }), 8000);
-                    })
-                ]);
-                clearTimeout(saveTimeoutId);
-
-                if (saveResult.status === "error") {
-                    console.error("Assessment displayed, but progress could not be saved:", saveResult.error);
-                    showTemporaryMessage("Assessment complete, but progress could not be saved. Check your connection.");
-                } else if (saveResult.status === "timeout") {
-                    showTemporaryMessage("Assessment complete. Saving progress is taking longer than expected.");
-                }
             } catch (error) {
                 console.error("Fetch or parsing error:", error);
-                if (requestAbortController.signal.aborted) {
-                    showTemporaryMessage("The AI service took too long to respond. Please try again.");
-                } else {
-                    showTemporaryMessage(`An error occurred: ${error.message || "Please try again."}`);
-                }
+                showTemporaryMessage(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
-                clearTimeout(evaluationTimeoutId);
                 spinner.classList.add("hidden");
                 submitBtn.classList.add("hidden");
                 skipBtn.classList.add("hidden");
