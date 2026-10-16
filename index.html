@@ -1043,11 +1043,17 @@
         async function getEvaluation() {
             const userTranslation = englishTranslationEl.value.trim();
             if (!userTranslation) { showTemporaryMessage("Please enter your translation."); return; }
-            if (AI_PROXY_URL.includes("")) {
-                showTemporaryMessage("Please finish the AI setup: deploy the Cloudflare Worker and set AI_PROXY_URL in index.html.");
-                return;
-            }
-
+           
+if (
+    !AI_PROXY_URL ||
+    AI_PROXY_URL.includes("YOUR-WORKER-NAME") ||
+    AI_PROXY_URL.includes("YOUR-SUBDOMAIN")
+) {
+    showTemporaryMessage(
+        "Please finish the AI setup: deploy the Cloudflare Worker and set AI_PROXY_URL in index.html."
+    );
+    return;
+}
             spinner.classList.remove('hidden');
             submitBtn.disabled = true;
             skipBtn.disabled = true;
