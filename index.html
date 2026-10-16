@@ -169,6 +169,8 @@
             transition: width 0.5s ease-in-out;
         }
         .rank-section {
+            position: relative;
+            outline: none;
             text-align: center;
             padding-top: 1.5rem;
             margin-top: 1.5rem;
@@ -183,6 +185,33 @@
         }
         #rank-name { font-size: 1.8rem; font-weight: bold; color: #007aff; margin: 0.5rem 0; }
         #rank-score { font-size: 1rem; color: #6e6e73; margin-top: 0.5rem; }
+        #rank-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% - 0.5rem);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 310px;
+            max-width: 90vw;
+            box-sizing: border-box;
+            padding: 0.75rem 0.9rem;
+            background: #1d1d1f;
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            font-size: 0.85rem;
+            text-align: left;
+            z-index: 50;
+        }
+        .rank-section:hover #rank-tooltip,
+        .rank-section:focus #rank-tooltip,
+        .rank-section:focus-within #rank-tooltip { display: block; }
+        #rank-tooltip .rt-title { font-weight: 600; margin-bottom: 0.4rem; }
+        #rank-tooltip .rt-row { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.2rem 0.4rem; border-radius: 6px; }
+        #rank-tooltip .rt-row.rt-current { background: #007aff; font-weight: 600; }
+        #rank-tooltip .rt-row span:first-child { white-space: nowrap; }
+        #rank-tooltip .rt-pts { white-space: nowrap; opacity: 0.85; }
+        #rank-tooltip .rt-next { margin-top: 0.5rem; opacity: 0.85; }
         .error-analysis-section {
             padding-top: 1.5rem;
             margin-top: 1.5rem;
@@ -340,7 +369,8 @@
                 <div class="progress-bar-container"><div id="weekly-progress-bar" class="progress-bar"></div></div>
             </div>
 
-            <div class="rank-section">
+            <div class="rank-section" tabindex="0" aria-describedby="rank-tooltip">
+                <div id="rank-tooltip" role="tooltip"></div>
                 <h3>Your Rank</h3>
                 <p id="rank-name">🔰 Second Lieutenant</p>
                 <p id="rank-score">Total Score: 0</p>
@@ -400,6 +430,10 @@
             measurementId: "G-9FRPLN921M"
         };
 
+        // First day of the week for the weekly goal/leaderboard: 0=Sun, 1=Mon, ... 6=Sat.
+        // IMPORTANT: if you change this, close every open tab/device of the app first
+        // (an old tab with a different value will fight with the new one).
+        const WEEK_START_DAY = 6;
         const DAILY_GOAL = 100;
         const WEEKLY_GOAL = 1000;
         const RANKS = [
@@ -414,6 +448,18 @@
             { name: "First Lieutenant", minScore: 100 },
             { name: "Second Lieutenant", minScore: 0 }
         ];
+        const RANK_EMOJIS = {
+                "General": "⭐️⭐️⭐️⭐️",
+                "Lieutenant General": "⭐️⭐️⭐️",
+                "Major General": "⭐️⭐️",
+                "Brigadier General": "⭐️",
+                "Colonel": "🦅",
+                "Lieutenant Colonel": "🦅",
+                "Major": "🎖️",
+                "Captain": "🎖️",
+                "First Lieutenant": "🔰",
+                "Second Lieutenant": "🔰"
+        };
         const ERROR_CRITERIA = [
             "Incorrect Word Choice",
             "Omission or Addition",
@@ -447,6 +493,7 @@
         const weeklyGoalLabel = document.getElementById("weekly-goal-label");
         const rankNameEl = document.getElementById("rank-name");
         const rankScoreEl = document.getElementById("rank-score");
+        const rankTooltipEl = document.getElementById("rank-tooltip");
         const errorAnalysisSection = document.querySelector(".error-analysis-section");
         const currentErrorsContainer = document.getElementById("current-errors-container");
         const loginBtn = document.getElementById("login-btn");
@@ -474,6 +521,12 @@
         let hallOfFameUnsubscribe = null;
         let isInitialLoad = true;
 
+        // Safety net: never allow more than MAX_SAVES_PER_WINDOW saves per minute from one tab.
+        const SAVE_WINDOW_MS = 60000;
+        const MAX_SAVES_PER_WINDOW = 30;
+        let recentSaveTimes = [];
+        let lastLeaderboardJson = "";
+
         // Local-date helpers (avoids UTC date shifts near midnight in Bangladesh).
         function formatLocalDate(date) {
             const year = date.getFullYear();
@@ -485,11 +538,10 @@
             return formatLocalDate(new Date());
         }
         function getWeekStartDateString() {
-            const monday = new Date();
-            const dayOfWeek = monday.getDay();
-            const daysSinceMonday = (dayOfWeek + 6) % 7;
-            monday.setDate(monday.getDate() - daysSinceMonday);
-            return formatLocalDate(monday);
+            const weekStart = new Date();
+            const daysSinceWeekStart = (weekStart.getDay() - WEEK_START_DAY + 7) % 7;
+            weekStart.setDate(weekStart.getDate() - daysSinceWeekStart);
+            return formatLocalDate(weekStart);
         }
 
         // Private progress listener. The public leaderboard is stored separately.
@@ -506,7 +558,6 @@
                 (docSnap) => {
                     if (!currentUser || currentUser.uid !== userId) return;
 
-                    let needsWrite = false;
                     const todayStr = getTodaysDateString();
                     const weekStartStr = getWeekStartDateString();
 
@@ -518,34 +569,27 @@
                         if (userData.displayName !== latestDisplayName || userData.photoURL !== latestPhotoURL) {
                             userData.displayName = latestDisplayName;
                             userData.photoURL = latestPhotoURL;
-                            needsWrite = true;
                         }
 
                         if (!userData.dailyScoreData || userData.dailyScoreData.date !== todayStr) {
                             userData.dailyScoreData = { date: todayStr, score: 0 };
-                            needsWrite = true;
                         }
 
                         if (!userData.weeklyScoreData || userData.weeklyScoreData.weekStartDate !== weekStartStr) {
                             userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
-                            needsWrite = true;
                         }
 
                         if (!Array.isArray(userData.usedTranslationIndices)) {
                             userData.usedTranslationIndices = [];
-                            needsWrite = true;
                         }
                         if (!Array.isArray(userData.savedWords)) {
                             userData.savedWords = [];
-                            needsWrite = true;
                         }
                         if (!Array.isArray(userData.deletedSentenceIndices)) {
                             userData.deletedSentenceIndices = [];
-                            needsWrite = true;
                         }
                         if (typeof userData.totalScore !== "number" || !Number.isFinite(userData.totalScore)) {
                             userData.totalScore = Number(userData.totalScore) || 0;
-                            needsWrite = true;
                         }
                     } else {
                         userData = {
@@ -558,7 +602,6 @@
                             savedWords: [],
                             deletedSentenceIndices: []
                         };
-                        needsWrite = true;
                     }
 
                     updateAllUI();
@@ -569,13 +612,11 @@
                         isInitialLoad = false;
                     }
 
-                    // Mirror a user's public stats on first load and after profile/score changes.
-                    if (needsWrite || wasInitialLoad) {
-                        saveDataToFirestore().catch((error) => {
-                            console.error("Failed to save profile/leaderboard:", error);
-                            showTemporaryMessage("Could not save your progress. Check Firestore rules and connection.");
-                        });
-                    }
+                    // NOTE: this listener intentionally does NOT write. Writing from a snapshot of the
+                    // same document lets two clients that disagree (e.g. different week start in an old
+                    // tab) overwrite each other forever. Day/week rollovers and profile changes are
+                    // normalized in memory above and saved by the next real action (displaySentence ->
+                    // getNewSentence runs right after the first load).
                 },
                 (error) => {
                     console.error("Profile listener failed:", error);
@@ -653,6 +694,14 @@
         async function saveDataToFirestore() {
             if (!currentUser) return;
 
+            const now = Date.now();
+            recentSaveTimes = recentSaveTimes.filter((t) => now - t < SAVE_WINDOW_MS);
+            if (recentSaveTimes.length >= MAX_SAVES_PER_WINDOW) {
+                console.error("Save throttle tripped: too many Firestore saves in one minute.");
+                throw new Error("Too many saves in a short time. Saving paused to protect the Firestore quota.");
+            }
+            recentSaveTimes.push(now);
+
             const userId = currentUser.uid;
             const privateProfileRef = doc(db, "users", userId);
             const publicLeaderboardRef = doc(db, "leaderboard", userId);
@@ -666,10 +715,16 @@
                 }
             };
 
-            await Promise.all([
-                setDoc(privateProfileRef, userData, { merge: true }),
-                setDoc(publicLeaderboardRef, publicEntry, { merge: true })
-            ]);
+            const writes = [setDoc(privateProfileRef, userData, { merge: true })];
+            // Only touch the public leaderboard doc when its content actually changed.
+            const leaderboardJson = JSON.stringify(publicEntry);
+            if (leaderboardJson !== lastLeaderboardJson) {
+                writes.push(
+                    setDoc(publicLeaderboardRef, publicEntry, { merge: true })
+                        .then(() => { lastLeaderboardJson = leaderboardJson; })
+                );
+            }
+            await Promise.all(writes);
         }
 
         // Authentication
@@ -692,6 +747,8 @@
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
+            lastLeaderboardJson = "";
+            recentSaveTimes = [];
 
             if (user) {
                 userNameEl.textContent = user.displayName || "Anonymous User";
@@ -753,8 +810,7 @@
             updateWeeklyDayCount();
         }
         function updateWeeklyDayCount() {
-            let dayOfWeek = new Date().getDay();
-            if (dayOfWeek === 0) dayOfWeek = 7;
+            const dayOfWeek = ((new Date().getDay() - WEEK_START_DAY + 7) % 7) + 1;
             weeklyGoalLabel.textContent = `Weekly Goal (Day ${dayOfWeek})`;
         }
         function updateRankAndScoreDisplay() {
@@ -762,6 +818,34 @@
             const currentRank = getRank(score);
             rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
             rankScoreEl.textContent = `Total Score: ${score.toLocaleString()}`;
+            renderRankTooltip(score, currentRank);
+        }
+        // Tooltip listing every rank and the points it needs (highest first).
+        function renderRankTooltip(score, currentRank) {
+            rankTooltipEl.innerHTML = "";
+            const title = document.createElement("div");
+            title.className = "rt-title";
+            title.textContent = "All ranks";
+            rankTooltipEl.appendChild(title);
+            RANKS.forEach((rank) => {
+                const row = document.createElement("div");
+                row.className = "rt-row" + (rank.name === currentRank.name ? " rt-current" : "");
+                const label = document.createElement("span");
+                label.textContent = `${RANK_EMOJIS[rank.name] || ""} ${rank.name}`;
+                const pts = document.createElement("span");
+                pts.className = "rt-pts";
+                pts.textContent = `${rank.minScore.toLocaleString()} pts`;
+                row.append(label, pts);
+                rankTooltipEl.appendChild(row);
+            });
+            const higher = RANKS.filter((rank) => rank.minScore > score);
+            const next = higher.length ? higher[higher.length - 1] : null;
+            const note = document.createElement("div");
+            note.className = "rt-next";
+            note.textContent = next
+                ? `${(next.minScore - score).toLocaleString()} pts to ${next.name}`
+                : "Highest rank reached!";
+            rankTooltipEl.appendChild(note);
         }
         function updateProgressBars() {
             const dailyScore = Number(userData.dailyScoreData?.score || 0);
@@ -869,20 +953,8 @@
 
         // Core Practice Logic
         function getRank(score) {
-            const rankEmojis = {
-                "General": "⭐️⭐️⭐️⭐️",
-                "Lieutenant General": "⭐️⭐️⭐️",
-                "Major General": "⭐️⭐️",
-                "Brigadier General": "⭐️",
-                "Colonel": "🦅",
-                "Lieutenant Colonel": "🦅",
-                "Major": "🎖️",
-                "Captain": "🎖️",
-                "First Lieutenant": "🔰",
-                "Second Lieutenant": "🔰"
-            };
             for (const rank of RANKS) {
-                if (score >= rank.minScore) return { name: rank.name, emoji: rankEmojis[rank.name] || "" };
+                if (score >= rank.minScore) return { name: rank.name, emoji: RANK_EMOJIS[rank.name] || "" };
             }
             return { name: "Second Lieutenant", emoji: "🔰" };
         }
@@ -1054,12 +1126,14 @@
                 }
 
                 displayCurrentErrors(Array.isArray(jsonResponse.errors_found) ? jsonResponse.errors_found : []);
-                userData.totalScore = Number(userData.totalScore || 0) + attemptScore;
-                userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
-                userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
+                // A score below 5 earns no points.
+                const pointsEarned = attemptScore < 5 ? 0 : attemptScore;
+                userData.totalScore = Number(userData.totalScore || 0) + pointsEarned;
+                userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + pointsEarned;
+                userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + pointsEarned;
                 await saveDataToFirestore();
 
-                scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
+                scoreEl.textContent = `Score for this sentence: ${attemptScore}/10` + (pointsEarned === 0 ? " (below 5, so no points added)" : "");
                 evaluationEl.textContent = String(jsonResponse.evaluation || "No feedback was provided.");
                 correctionEl.textContent = String(jsonResponse.correction || currentSentence.English || "No correction was provided.");
                 resultsEl.classList.remove("hidden");
