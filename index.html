@@ -485,11 +485,11 @@
             return formatLocalDate(new Date());
         }
         function getWeekStartDateString() {
-            const saturday = new Date();
-            const dayOfWeek = saturday.getDay();
-            const daysSinceSaturday = (dayOfWeek + 1) % 7;
-            saturday.setDate(saturday.getDate() - daysSinceSaturday);
-            return formatLocalDate(saturday);
+            const monday = new Date();
+            const dayOfWeek = monday.getDay();
+            const daysSinceMonday = (dayOfWeek + 6) % 7;
+            monday.setDate(monday.getDate() - daysSinceMonday);
+            return formatLocalDate(monday);
         }
 
         // Private progress listener. The public leaderboard is stored separately.
@@ -753,16 +753,14 @@
             updateWeeklyDayCount();
         }
         function updateWeeklyDayCount() {
-            const dayOfWeek = (new Date().getDay() + 1) % 7 + 1;
+            let dayOfWeek = new Date().getDay();
+            if (dayOfWeek === 0) dayOfWeek = 7;
             weeklyGoalLabel.textContent = `Weekly Goal (Day ${dayOfWeek})`;
         }
         function updateRankAndScoreDisplay() {
             const score = Number(userData.totalScore || 0);
             const currentRank = getRank(score);
             rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
-            rankNameEl.title = RANKS.slice().reverse()
-                .map((rank) => `${rank.name}: ${rank.minScore.toLocaleString()} points`)
-                .join("\n");
             rankScoreEl.textContent = `Total Score: ${score.toLocaleString()}`;
         }
         function updateProgressBars() {
@@ -1056,11 +1054,9 @@
                 }
 
                 displayCurrentErrors(Array.isArray(jsonResponse.errors_found) ? jsonResponse.errors_found : []);
-                if (attemptScore >= 5) {
-                    userData.totalScore = Number(userData.totalScore || 0) + attemptScore;
-                    userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
-                    userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
-                }
+                userData.totalScore = Number(userData.totalScore || 0) + attemptScore;
+                userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
+                userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
                 await saveDataToFirestore();
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
