@@ -626,10 +626,12 @@
 
         // --- CORRECTED: Real-time Firestore Listener ---
         function setupFirestoreListener(userId) {
-            if (firestoreUnsubscribe) {
-                firestoreUnsubscribe(); // Detach any old listener
-            }
-
+             if (needsWrite || isInitialLoad) {
+    saveDataToFirestore().catch((error) => {
+        console.error("Failed to save profile/leaderboard:", error);
+    });
+}
+        }
             const docRef = doc(db, "users", userId);
             firestoreUnsubscribe = onSnapshot(docRef, (docSnap) => {
                 let needsWrite = false;
@@ -719,12 +721,20 @@
                 hallOfFameUnsubscribe();
             }
 
-            const usersRef = collection(db, "users");
-            hallOfFameUnsubscribe = onSnapshot(usersRef, (querySnapshot) => {
+          const leaderboardRef = collection(db, "leaderboard");
+hallOfFameUnsubscribe = onSnapshot(leaderboardRef, (querySnapshot) => {
                 const users = [];
                 querySnapshot.forEach((doc) => {
                     users.push(doc.data());
-                });
+                 }, (error) => {
+    console.error("Hall of Fame listener failed:", error);
+    hallOfFameList.innerHTML =
+        '<li style="text-align:center;padding:1rem 0;">Hall of Fame unavailable. Check the Firestore rules.</li>';
+});
+                                     
+                                     
+                                     
+                                     
 
                 const currentWeekStart = getWeekStartDateString();
                 const weeklyParticipants = users.filter(user => 
@@ -766,11 +776,29 @@
         }
 
 
-        async function saveDataToFirestore() {
-            if (!currentUser) return;
-            const docRef = doc(db, "users", currentUser.uid);
-            await setDoc(docRef, userData, { merge: true });
+       async function saveDataToFirestore() {
+    if (!currentUser) return;
+
+    const privateProfileRef = doc(db, "users", currentUser.uid);
+    const publicLeaderboardRef = doc(db, "leaderboard", currentUser.uid);
+
+    const publicEntry = {
+        displayName: String(currentUser.displayName || userData.displayName || "Anonymous User"),
+        photoURL: String(currentUser.photoURL || userData.photoURL || ""),
+        totalScore: Number(userData.totalScore || 0),
+        weeklyScoreData: {
+            weekStartDate: String(
+                userData.weeklyScoreData?.weekStartDate || getWeekStartDateString()
+            ),
+            score: Number(userData.weeklyScoreData?.score || 0)
         }
+    };
+
+    await Promise.all([
+        setDoc(privateProfileRef, userData, { merge: true }),
+        setDoc(publicLeaderboardRef, publicEntry, { merge: true })
+    ]);
+}
 
         // --- Authentication Functions ---
         async function signIn() {
