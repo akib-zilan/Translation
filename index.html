@@ -543,7 +543,9 @@
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // --- Configuration ---
-        const API_KEY = "AIzaSyCND3EhkA3cLclRUmXlvW9LWHqIH91H3Bc";
+        // Deploy cloudflare-worker/worker.js, then paste its URL here.
+        // Keep the Groq API key on the Worker as a secret; never put it in this file.
+        const AI_PROXY_URL = "https://workers-playground-dark-sky-b3b9.akibzilan.workers.dev/";
 
         // IMPORTANT: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
         const firebaseConfig = {
@@ -660,6 +662,12 @@
                     }
                     if (userData.weeklyScoreData.weekStartDate !== weekStartStr) {
                         userData.weeklyScoreData = { weekStartDate: weekStartStr, score: 0 };
+                        needsWrite = true;
+                    }
+                    // Ensure usedTranslationIndices exists for older user profiles.
+                    // Without this, getNewSentence() calls .push() on undefined.
+                    if (!Array.isArray(userData.usedTranslationIndices)) {
+                        userData.usedTranslationIndices = [];
                         needsWrite = true;
                     }
                     // NEW: Ensure savedWords array exists
@@ -993,34 +1001,52 @@
         async function fetchWithRetry(url, options, retries = 3, initialDelay = 1000) {
             let lastError;
             for (let i = 0; i < retries; i++) {
+                let response;
                 try {
-                    const response = await fetch(url, options);
-                    if (response.ok) {
-                        return response;
-                    }
-                    if (response.status === 503 || response.status === 500 || response.status === 504) {
-                        console.log(`Attempt ${i + 1} failed with status ${response.status}. Retrying in ${initialDelay / 1000}s...`);
-                        lastError = new Error(`API error! Status: ${response.status}.`);
+                    response = await fetch(url, options);
+                } catch (error) {
+                    lastError = error;
+                    if (i < retries - 1) {
+                        console.warn(`Network attempt ${i + 1} failed; retrying.`, error);
                         await new Promise(resolve => setTimeout(resolve, initialDelay));
                         initialDelay *= 2;
                         continue;
                     }
-                    throw new Error(`API error! Status: ${response.status}.`);
-                } catch (error) {
-                    lastError = error;
-                    console.log(`Attempt ${i + 1} failed with a network error. Retrying in ${initialDelay / 1000}s...`);
-                    await new Promise(resolve => setTimeout(resolve, initialDelay));
-                    initialDelay *= 2;
+                    throw error;
                 }
+
+                if (response.ok) return response;
+
+                let errorMessage = `API error: HTTP ${response.status}`;
+                try {
+                    const errorData = await response.clone().json();
+                    const detail = errorData?.error?.message || errorData?.error || errorData?.message;
+                    if (detail) errorMessage = `${errorMessage} — ${detail}`;
+                } catch (_) { /* Keep the HTTP status as the fallback. */ }
+
+                const retryable = [429, 500, 502, 503, 504].includes(response.status);
+                if (!retryable || i === retries - 1) throw new Error(errorMessage);
+
+                lastError = new Error(errorMessage);
+                const retryAfter = Number(response.headers.get('Retry-After'));
+                const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+                    ? retryAfter * 1000
+                    : initialDelay;
+                console.warn(`Attempt ${i + 1} failed (${response.status}); retrying in ${waitMs}ms.`);
+                await new Promise(resolve => setTimeout(resolve, waitMs));
+                initialDelay *= 2;
             }
-            throw lastError;
+            throw lastError || new Error('The AI service could not be reached.');
         }
 
 
         async function getEvaluation() {
             const userTranslation = englishTranslationEl.value.trim();
             if (!userTranslation) { showTemporaryMessage("Please enter your translation."); return; }
-            if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") { showTemporaryMessage("Error: Please replace the placeholder API_KEY in the code."); return; }
+            if (AI_PROXY_URL.includes("")) {
+                showTemporaryMessage("Please finish the AI setup: deploy the Cloudflare Worker and set AI_PROXY_URL in index.html.");
+                return;
+            }
 
             spinner.classList.remove('hidden');
             submitBtn.disabled = true;
@@ -1030,17 +1056,23 @@
             const prompt = `You are an expert Bangla to English language tutor. Your goal is to help a student improve their translation skills. Respond ONLY in valid, minified JSON. The JSON object must have these keys: "score" (integer out of 10), "evaluation" (a detailed but concise explanation), "correction" (the ideal translation), and "errors_found" (an array of strings from this list: ${JSON.stringify(ERROR_CRITERIA)}). Any grammatical error, such as incorrect tense, incorrect word order, or major preposition mistakes, is a serious issue and MUST result in a score less than 6. These types of errors are not forgivable. Start the evaluation with a positive comment. Explain WHY a correction is better. - Original: ${currentSentence.Bengali} - Standard: ${currentSentence.English} - User's: ${userTranslation}`;
 
             try {
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-                const response = await fetchWithRetry(apiUrl, {
+                if (!currentUser) throw new Error("Please sign in again before evaluating your translation.");
+                const firebaseIdToken = await currentUser.getIdToken();
+                const response = await fetchWithRetry(AI_PROXY_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${firebaseIdToken}`
+                    },
+                    body: JSON.stringify({ prompt })
                 });
 
                 const responseData = await response.json();
-                if (!responseData.candidates) throw new Error("Invalid API response structure.");
+                if (typeof responseData.text !== 'string' || !responseData.text.trim()) {
+                    throw new Error(responseData.error?.message || responseData.error || "Invalid response from the AI service.");
+                }
 
-                let responseText = responseData.candidates[0].content.parts[0].text;
+                let responseText = responseData.text;
                 const jsonString = responseText.slice(responseText.indexOf('{'), responseText.lastIndexOf('}') + 1);
                 const jsonResponse = JSON.parse(jsonString);
 
