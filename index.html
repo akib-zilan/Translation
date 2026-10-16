@@ -485,11 +485,11 @@
             return formatLocalDate(new Date());
         }
         function getWeekStartDateString() {
-            const monday = new Date();
-            const dayOfWeek = monday.getDay();
-            const daysSinceMonday = (dayOfWeek + 6) % 7;
-            monday.setDate(monday.getDate() - daysSinceMonday);
-            return formatLocalDate(monday);
+            const saturday = new Date();
+            const dayOfWeek = saturday.getDay();
+            const daysSinceSaturday = (dayOfWeek + 1) % 7;
+            saturday.setDate(saturday.getDate() - daysSinceSaturday);
+            return formatLocalDate(saturday);
         }
 
         // Private progress listener. The public leaderboard is stored separately.
@@ -753,14 +753,16 @@
             updateWeeklyDayCount();
         }
         function updateWeeklyDayCount() {
-            let dayOfWeek = new Date().getDay();
-            if (dayOfWeek === 0) dayOfWeek = 7;
+            const dayOfWeek = (new Date().getDay() + 1) % 7 + 1;
             weeklyGoalLabel.textContent = `Weekly Goal (Day ${dayOfWeek})`;
         }
         function updateRankAndScoreDisplay() {
             const score = Number(userData.totalScore || 0);
             const currentRank = getRank(score);
             rankNameEl.textContent = `${currentRank.emoji} ${currentRank.name}`;
+            rankNameEl.title = RANKS.slice().reverse()
+                .map((rank) => `${rank.name}: ${rank.minScore.toLocaleString()} points`)
+                .join("\n");
             rankScoreEl.textContent = `Total Score: ${score.toLocaleString()}`;
         }
         function updateProgressBars() {
@@ -1050,13 +1052,19 @@
 
                 if (attemptScore < 6) {
                     userData.usedTranslationIndices = (userData.usedTranslationIndices || []).filter((index) => index !== currentSentenceIndex);
-                    showTemporaryMessage("You'll see this sentence again to practice!");
+                    if (attemptScore < 5) {
+                        showTemporaryMessage("Score below 5: no points awarded. You'll see this sentence again to practice!");
+                    } else {
+                        showTemporaryMessage("You'll see this sentence again to practice!");
+                    }
                 }
 
                 displayCurrentErrors(Array.isArray(jsonResponse.errors_found) ? jsonResponse.errors_found : []);
-                userData.totalScore = Number(userData.totalScore || 0) + attemptScore;
-                userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
-                userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
+                if (attemptScore >= 5) {
+                    userData.totalScore = Number(userData.totalScore || 0) + attemptScore;
+                    userData.dailyScoreData.score = Number(userData.dailyScoreData?.score || 0) + attemptScore;
+                    userData.weeklyScoreData.score = Number(userData.weeklyScoreData?.score || 0) + attemptScore;
+                }
                 await saveDataToFirestore();
 
                 scoreEl.textContent = `Score for this sentence: ${attemptScore}/10`;
